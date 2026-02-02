@@ -5,101 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formula Matcher | Analisador de Similaridade</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; }
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .navbar { background-color: var(--primary); color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .search-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: -30px; }
-        .status-badge { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; }
-        .comp-card { border: none; border-radius: 12px; transition: transform 0.2s; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .comp-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .similarity-bar { height: 8px; border-radius: 4px; background-color: #eee; margin: 10px 0; }
-        .similarity-fill { height: 100%; border-radius: 4px; background: var(--success); transition: width 1s ease-in-out; }
-        .tag-base { background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
-        .tag-func { background: #fff3e0; color: #f57c00; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .scroll-area { max-height: 400px; overflow-y: auto; padding-right: 10px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --void-black: #0a0e14; --deep-shadow: #1a1f2e; --soul-white: #e8e8e8;
+            --pale-glow: #c4b5a0; --ancient-blue: #4a90e2; --essence-cyan: #6dd5ed;
+            --shade-purple: #8b7fbf; --infection-orange: #f4a261; --lifeblood-blue: #5ec8d8;
+            --dream-mist: rgba(74, 144, 226, 0.1); --soul-shimmer: rgba(109, 213, 237, 0.15);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--void-black) 0%, var(--deep-shadow) 100%);
+            font-family: 'Cormorant Garamond', serif; color: var(--soul-white);
+            min-height: 100vh; position: relative; overflow-x: hidden;
+        }
+
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 20% 50%, var(--dream-mist) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, var(--soul-shimmer) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(180deg, rgba(10, 14, 20, 0.95) 0%, rgba(26, 31, 46, 0.8) 100%);
+            backdrop-filter: blur(10px); border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+            padding: 1.5rem 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .navbar-content { display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 700; color: var(--essence-cyan); text-shadow: 0 0 20px rgba(109, 213, 237, 0.5); letter-spacing: 2px; }
+        .status-badge { background: rgba(74, 144, 226, 0.2); border: 1px solid var(--ancient-blue); padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; box-shadow: 0 0 15px rgba(74, 144, 226, 0.3); }
+        .status-badge.loaded { border-color: var(--lifeblood-blue); box-shadow: 0 0 20px rgba(94, 200, 216, 0.4); }
+
+        /* Search Card */
+        .search-card {
+            background: linear-gradient(145deg, rgba(26, 31, 46, 0.9) 0%, rgba(10, 14, 20, 0.95) 100%);
+            border: 1px solid rgba(74, 144, 226, 0.3); border-radius: 20px; padding: 35px; margin: 40px auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+        }
+        .form-row { display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 20px; align-items: end; }
+        .form-label { display: block; font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--pale-glow); margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+        .form-control { width: 100%; padding: 14px 18px; background: rgba(10, 14, 20, 0.6); border: 2px solid rgba(74, 144, 226, 0.3); border-radius: 10px; color: var(--soul-white); font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; outline: none; }
+        .form-control:focus { border-color: var(--essence-cyan); box-shadow: 0 0 20px rgba(109, 213, 237, 0.3); }
+        .btn-primary { width: 100%; padding: 14px 24px; background: linear-gradient(135deg, var(--ancient-blue) 0%, var(--shade-purple) 100%); border: 2px solid rgba(109, 213, 237, 0.4); border-radius: 10px; color: var(--soul-white); font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 1.5px; cursor: pointer; box-shadow: 0 5px 20px rgba(74, 144, 226, 0.4); }
+
+        /* Results Layout */
+        .results-grid { display: grid; grid-template-columns: 450px 1fr; gap: 30px; margin-top: 40px; }
+
+        /* Target Card */
+        .target-card { background: linear-gradient(145deg, rgba(74, 144, 226, 0.15) 0%, rgba(26, 31, 46, 0.95) 100%); border: 2px solid var(--ancient-blue); border-radius: 15px; position: sticky; top: 100px; max-height: calc(100vh - 120px); overflow: hidden; }
+        .target-header { background: linear-gradient(135deg, var(--ancient-blue) 0%, var(--shade-purple) 100%); padding: 20px; text-align: center; }
+        .target-body { padding: 25px; overflow-y: auto; max-height: calc(100vh - 200px); }
+        .target-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--essence-cyan); margin-bottom: 8px; }
+
+        /* Rosca Grouping */
+        .rosca-group { margin-bottom: 20px; border: 1px solid rgba(109, 213, 237, 0.2); border-radius: 8px; background: rgba(0,0,0,0.2); }
+        .rosca-header { background: rgba(74, 144, 226, 0.1); padding: 8px 15px; font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--essence-cyan); display: flex; justify-content: space-between; border-bottom: 1px solid rgba(109, 213, 237, 0.2); }
+        
+        .composition-item { padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; font-size: 0.95rem; }
+        .composition-item:last-child { border-bottom: none; }
+        .tag-base { background: rgba(94, 200, 216, 0.2); border: 1px solid var(--lifeblood-blue); color: var(--essence-cyan); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-right: 10px; min-width: 65px; text-align: center; }
+        .tag-func { background: rgba(244, 162, 97, 0.2); border: 1px solid var(--infection-orange); color: var(--infection-orange); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-right: 10px; min-width: 65px; text-align: center; }
+        .item-qty { color: var(--soul-white); font-weight: bold; margin-right: 10px; min-width: 50px; }
+        .item-desc { color: var(--pale-glow); flex-grow: 1; }
+
+        /* Result Card */
+        .result-card { background: rgba(26, 31, 46, 0.9); border: 1px solid rgba(74, 144, 226, 0.2); border-radius: 15px; padding: 25px; margin-bottom: 20px; transition: 0.3s; }
+        .result-card:hover { transform: translateX(10px); border-color: var(--essence-cyan); }
+        .score-value { font-family: 'Cinzel', serif; font-size: 2.2rem; color: var(--essence-cyan); }
+        .similarity-bar { height: 8px; background: rgba(0,0,0,0.5); border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .similarity-fill { height: 100%; background: linear-gradient(90deg, var(--ancient-blue), var(--essence-cyan)); transition: 1s; }
+
+        /* Loading Overlay */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--void-black); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: 0.5s; }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(74, 144, 226, 0.2); border-top-color: var(--essence-cyan); border-radius: 50%; animation: spin 1s infinite linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        details { margin-top: 15px; }
+        summary { cursor: pointer; color: var(--essence-cyan); font-family: 'Cinzel', serif; font-size: 0.85rem; outline: none; }
+        .details-content { margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; }
     </style>
 </head>
 <body>
 
 <div id="loader" class="loading-overlay">
     <div class="text-center">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2">Carregando banco de dados...</p>
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-family: 'Cinzel'; color: var(--pale-glow);">Invocando Dados...</p>
     </div>
 </div>
 
-<nav class="navbar pb-5 pt-4">
+<nav class="navbar">
     <div class="container">
-        <span class="navbar-brand mb-0 h1">🧪 Formula Matcher <small class="opacity-50">v2.0</small></span>
-        <span id="dbStatus" class="badge bg-light text-dark status-badge">Conectando...</span>
+        <div class="navbar-content">
+            <div class="navbar-brand">🧪 Formula Matcher <small>v2.2</small></div>
+            <div id="dbStatus" class="status-badge">Conectando...</div>
+        </div>
     </div>
 </nav>
 
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10 search-card">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-5">
-                    <label class="form-label fw-bold">ID da Composição Alvo</label>
-                    <input type="text" id="targetId" class="form-control form-control-lg" placeholder="Ex: 245">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Mostrar quantos?</label>
-                    <select id="topN" class="form-select form-control-lg">
-                        <option value="3">Top 3</option>
-                        <option value="5" selected>Top 5</option>
-                        <option value="10">Top 10</option>
-                        <option value="20">Top 20</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <button onclick="analisar()" class="btn btn-primary btn-lg w-100 shadow-sm">🔍 Analisar Similaridade</button>
-                </div>
+    <div class="search-card">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">ID da Composição Alvo</label>
+                <input type="text" id="targetId" class="form-control" placeholder="Ex: 245">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Resultados</label>
+                <select id="topN" class="form-control">
+                    <option value="3">Top 3</option>
+                    <option value="5" selected>Top 5</option>
+                    <option value="10">Top 10</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button onclick="analisar()" class="btn-primary">🔍 Analisar Similaridade</button>
             </div>
         </div>
     </div>
 
-    <div class="row mt-5">
-        <!-- Coluna da Esquerda: Alvo -->
-        <div class="col-lg-4">
-            <div id="alvoContainer"></div>
-        </div>
-        
-        <!-- Coluna da Direita: Resultados -->
-        <div class="col-lg-8">
-            <div id="resultadosContainer">
-                <div class="text-center text-muted mt-5">
-                    <p>Insira um ID acima para começar a comparação.</p>
-                </div>
+    <div class="results-grid">
+        <div id="alvoContainer"></div>
+        <div id="resultadosContainer">
+            <div style="text-align: center; padding: 100px; opacity: 0.5;">
+                <p style="font-family: 'Cinzel'; font-size: 1.2rem;">Aguardando ID para análise...</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // URL RAW do seu arquivo no GitHub
     const CSV_URL = 'https://andregazineu.github.io/Formula-Matcher/database_limpo_final.csv';
-    
     let composicoes = {};
 
-    // Inicialização: Carregar dados
     window.onload = () => {
         Papa.parse(CSV_URL, {
-            download: true,
-            header: true,
-            dynamicTyping: true,
-            skipEmptyLines: true,
-            delimiter: ";",
+            download: true, header: true, dynamicTyping: true, skipEmptyLines: true, delimiter: ";",
             complete: function(results) {
                 processarDados(results.data);
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('dbStatus').innerHTML = `✅ ${Object.keys(composicoes).length} Fórmulas Carregadas`;
-            },
-            error: function(err) {
-                alert("Erro ao carregar banco de dados. Verifique a conexão.");
+                document.getElementById('loader').classList.add('hidden');
+                const badge = document.getElementById('dbStatus');
+                badge.innerHTML = `✅ ${Object.keys(composicoes).length} Fórmulas`;
+                badge.classList.add('loaded');
             }
         });
     };
@@ -110,25 +163,32 @@
             const nomeMat = String(row.Descricao_Material).toUpperCase();
             const tipo = (nomeMat.startsWith('ADIT.') || nomeMat.startsWith('PIG.')) ? 'FUNCIONAL' : 'BASE';
             const atributo = `${row.Grupo_Rosca}_${row.Cod_Material}`;
-            const qtd = row.Qtd_Corrigida_No_Filme || 0;
+            
+            // Qtd para cálculo (Global no Filme)
+            const qtdFilme = row.Qtd_Corrigida_No_Filme || 0;
+            // Qtd para exibição (Local na Rosca)
+            const qtdRosca = row.Qtd_Original_Na_Rosca || 0;
 
             if (!composicoes[id]) {
                 composicoes[id] = {
-                    id: id,
-                    nome: row.Nome_Composicao,
-                    base: {},
-                    func: {},
-                    itens: []
+                    id: id, nome: row.Nome_Composicao,
+                    base: {}, func: {}, itens: []
                 };
             }
             
             if (tipo === 'BASE') {
-                composicoes[id].base[atributo] = (composicoes[id].base[atributo] || 0) + qtd;
+                composicoes[id].base[atributo] = (composicoes[id].base[atributo] || 0) + qtdFilme;
             } else {
-                composicoes[id].func[atributo] = (composicoes[id].func[atributo] || 0) + qtd;
+                composicoes[id].func[atributo] = (composicoes[id].func[atributo] || 0) + qtdFilme;
             }
             
-            composicoes[id].itens.push({ desc: row.Descricao_Material, qtd: qtd, tipo: tipo });
+            composicoes[id].itens.push({
+                desc: row.Descricao_Material,
+                qtdExibicao: qtdRosca, // Usamos a original para o front
+                tipo: tipo,
+                rosca: row.Grupo_Rosca,
+                percRosca: row.Percentual_Rosca
+            });
         });
     }
 
@@ -136,11 +196,8 @@
         let dotProduct = 0, mA = 0, mB = 0;
         const keys = new Set([...Object.keys(vecA), ...Object.keys(vecB)]);
         for (let key of keys) {
-            const valA = vecA[key] || 0;
-            const valB = vecB[key] || 0;
-            dotProduct += valA * valB;
-            mA += valA * valA;
-            mB += valB * valB;
+            const valA = vecA[key] || 0; const valB = vecB[key] || 0;
+            dotProduct += valA * valB; mA += valA * valA; mB += valB * valB;
         }
         mA = Math.sqrt(mA); mB = Math.sqrt(mB);
         return (mA === 0 || mB === 0) ? 0 : dotProduct / (mA * mB);
@@ -149,108 +206,99 @@
     function analisar() {
         const targetId = document.getElementById('targetId').value.trim();
         const topN = parseInt(document.getElementById('topN').value);
-        
-        if (!composicoes[targetId]) {
-            alert("ID não encontrado no banco de dados!");
-            return;
-        }
+        if (!composicoes[targetId]) { alert("ID não encontrado!"); return; }
 
         const alvo = composicoes[targetId];
-        renderAlvo(alvo);
+        renderComposicao(alvo, 'alvoContainer', 'Fórmula Selecionada');
 
         const resultados = [];
         Object.keys(composicoes).forEach(id => {
             if (id === targetId) return;
             const comp = composicoes[id];
-            
             const simBase = cosineSimilarity(alvo.base, comp.base);
             let simFunc = 0;
             const somaAlvoFunc = Object.values(alvo.func).reduce((a, b) => a + b, 0);
             const somaCompFunc = Object.values(comp.func).reduce((a, b) => a + b, 0);
+            if (somaAlvoFunc === 0) simFunc = (somaCompFunc === 0) ? 1.0 : 0.0;
+            else simFunc = cosineSimilarity(alvo.func, comp.func);
 
-            if (somaAlvoFunc === 0) {
-                simFunc = (somaCompFunc === 0) ? 1.0 : 0.0;
-            } else {
-                simFunc = cosineSimilarity(alvo.func, comp.func);
-            }
-
-            resultados.push({
-                ...comp,
-                simBase, simFunc,
-                simFinal: (simBase + simFunc) / 2
-            });
+            resultados.push({ ...comp, simBase, simFunc, simFinal: (simBase + simFunc) / 2 });
         });
 
         resultados.sort((a, b) => b.simFinal - a.simFinal);
         renderResultados(resultados.slice(0, topN));
     }
 
-    function renderAlvo(alvo) {
-        document.getElementById('alvoContainer').innerHTML = `
-            <div class="card border-primary shadow-sm mb-4">
-                <div class="card-header bg-primary text-white fw-bold">Fórmula Selecionada</div>
-                <div class="card-body">
-                    <h5 class="card-title text-primary">${alvo.nome}</h5>
-                    <p class="text-muted small">ID: ${alvo.id}</p>
-                    <hr>
-                    <h6>Composição:</h6>
-                    <div class="scroll-area">
-                        ${alvo.itens.map(i => `
-                            <div class="mb-1 small">
-                                <span class="${i.tipo === 'BASE' ? 'tag-base' : 'tag-func'}">${i.tipo}</span>
-                                <strong>${i.qtd.toFixed(2)}%</strong> ${i.desc}
-                            </div>
-                        `).join('')}
+    function agruparPorRosca(itens) {
+        return itens.reduce((acc, item) => {
+            if (!acc[item.rosca]) acc[item.rosca] = { perc: item.percRosca, materiais: [] };
+            acc[item.rosca].materiais.push(item);
+            return acc;
+        }, {});
+    }
+
+    function gerarHtmlItens(itens) {
+        const grupos = agruparPorRosca(itens);
+        return Object.keys(grupos).sort().map(rosca => `
+            <div class="rosca-group">
+                <div class="rosca-header">
+                    <span>${rosca}</span>
+                    <span>${grupos[rosca].perc}% do Filme</span>
+                </div>
+                ${grupos[rosca].materiais.map(i => `
+                    <div class="composition-item">
+                        <span class="${i.tipo === 'BASE' ? 'tag-base' : 'tag-func'}">${i.tipo}</span>
+                        <span class="item-qty">${i.qtdExibicao.toFixed(2)}%</span>
+                        <span class="item-desc">${i.desc}</span>
                     </div>
+                `).join('')}
+            </div>
+        `).join('');
+    }
+
+    function renderComposicao(alvo, containerId, titulo) {
+        document.getElementById(containerId).innerHTML = `
+            <div class="target-card">
+                <div class="target-header"><h3 style="font-family: 'Cinzel'; color: white;">${titulo}</h3></div>
+                <div class="target-body">
+                    <h4 class="target-title">${alvo.nome}</h4>
+                    <p style="color: var(--pale-glow); opacity: 0.7; margin-bottom: 20px;">ID: ${alvo.id}</p>
+                    ${gerarHtmlItens(alvo.itens)}
                 </div>
             </div>
         `;
     }
 
     function renderResultados(lista) {
-        let html = `<h4 class="mb-4">Top Similares Encontradas</h4>`;
+        let html = `<h2 style="font-family: 'Cinzel'; margin-bottom: 30px; color: var(--essence-cyan);">Fórmulas Similares</h2>`;
         lista.forEach(res => {
             const perc = (res.simFinal * 100).toFixed(1);
             html += `
-                <div class="card comp-card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h5 class="mb-0">${res.nome}</h5>
-                                <small class="text-muted">ID: ${res.id}</small>
-                            </div>
-                            <div class="text-end">
-                                <span class="h4 mb-0 text-success">${perc}%</span><br>
-                                <small class="text-muted">similaridade</small>
-                            </div>
+                <div class="result-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h5 style="font-family: 'Cinzel'; font-size: 1.3rem;">${res.nome}</h5>
+                            <small style="color: var(--pale-glow);">ID: ${res.id}</small>
                         </div>
-                        
-                        <div class="similarity-bar">
-                            <div class="similarity-fill" style="width: ${perc}%"></div>
+                        <div style="text-align: right;">
+                            <span class="score-value">${perc}%</span><br>
+                            <small style="font-family: 'Cinzel'; opacity: 0.7;">Similaridade</small>
                         </div>
-                        
-                        <div class="row mt-3 small text-muted">
-                            <div class="col-6">🧬 Resinas: <strong>${(res.simBase*100).toFixed(1)}%</strong></div>
-                            <div class="col-6">🧪 Aditivos: <strong>${(res.simFunc*100).toFixed(1)}%</strong></div>
-                        </div>
-
-                        <details class="mt-3">
-                            <summary class="btn btn-sm btn-outline-secondary">Ver Composição Completa</summary>
-                            <div class="mt-2 p-2 bg-light rounded">
-                                ${res.itens.map(i => `
-                                    <div class="small border-bottom py-1">
-                                        <strong>${i.qtd.toFixed(2)}%</strong> ${i.desc}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </details>
                     </div>
+                    <div class="similarity-bar"><div class="similarity-fill" style="width: ${perc}%"></div></div>
+                    <div style="display: flex; gap: 20px; font-size: 0.9rem; color: var(--pale-glow);">
+                        <span>🧬 Resinas: <strong>${(res.simBase*100).toFixed(1)}%</strong></span>
+                        <span>🧪 Aditivos: <strong>${(res.simFunc*100).toFixed(1)}%</strong></span>
+                    </div>
+                    <details>
+                        <summary>Ver Detalhes da Estrutura</summary>
+                        <div class="details-content">${gerarHtmlItens(res.itens)}</div>
+                    </details>
                 </div>
             `;
         });
         document.getElementById('resultadosContainer').innerHTML = html;
     }
 </script>
-
 </body>
 </html>
