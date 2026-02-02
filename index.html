@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formula Matcher | Analisador de Similaridade</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { background-color: var(--primary); color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .search-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: -30px; }
+        .status-badge { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; }
+        .comp-card { border: none; border-radius: 12px; transition: transform 0.2s; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .comp-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .similarity-bar { height: 8px; border-radius: 4px; background-color: #eee; margin: 10px 0; }
+        .similarity-fill { height: 100%; border-radius: 4px; background: var(--success); transition: width 1s ease-in-out; }
+        .tag-base { background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .tag-func { background: #fff3e0; color: #f57c00; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .scroll-area { max-height: 400px; overflow-y: auto; padding-right: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="loading-overlay">
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Carregando banco de dados...</p>
+    </div>
+</div>
+
+<nav class="navbar pb-5 pt-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">🧪 Formula Matcher <small class="opacity-50">v2.0</small></span>
+        <span id="dbStatus" class="badge bg-light text-dark status-badge">Conectando...</span>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10 search-card">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">ID da Composição Alvo</label>
+                    <input type="text" id="targetId" class="form-control form-control-lg" placeholder="Ex: 245">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Mostrar quantos?</label>
+                    <select id="topN" class="form-select form-control-lg">
+                        <option value="3">Top 3</option>
+                        <option value="5" selected>Top 5</option>
+                        <option value="10">Top 10</option>
+                        <option value="20">Top 20</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button onclick="analisar()" class="btn btn-primary btn-lg w-100 shadow-sm">🔍 Analisar Similaridade</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Coluna da Esquerda: Alvo -->
+        <div class="col-lg-4">
+            <div id="alvoContainer"></div>
+        </div>
+        
+        <!-- Coluna da Direita: Resultados -->
+        <div class="col-lg-8">
+            <div id="resultadosContainer">
+                <div class="text-center text-muted mt-5">
+                    <p>Insira um ID acima para começar a comparação.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // URL RAW do seu arquivo no GitHub
+    const CSV_URL = 'https://raw.githubusercontent.com/AndreGazineu/Formula-Matcher/main/database_limpo_final.csv';
+    
+    let composicoes = {};
+
+    // Inicialização: Carregar dados
+    window.onload = () => {
+        Papa.parse(CSV_URL, {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            skipEmptyLines: true,
+            delimiter: ";",
+            complete: function(results) {
+                processarDados(results.data);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('dbStatus').innerHTML = `✅ ${Object.keys(composicoes).length} Fórmulas Carregadas`;
+            },
+            error: function(err) {
+                alert("Erro ao carregar banco de dados. Verifique a conexão.");
+            }
+        });
+    };
+
+    function processarDados(data) {
+        data.forEach(row => {
+            const id = String(row.ID_Composicao);
+            const nomeMat = String(row.Descricao_Material).toUpperCase();
+            const tipo = (nomeMat.startsWith('ADIT.') || nomeMat.startsWith('PIG.')) ? 'FUNCIONAL' : 'BASE';
+            const atributo = `${row.Grupo_Rosca}_${row.Cod_Material}`;
+            const qtd = row.Qtd_Corrigida_No_Filme || 0;
+
+            if (!composicoes[id]) {
+                composicoes[id] = {
+                    id: id,
+                    nome: row.Nome_Composicao,
+                    base: {},
+                    func: {},
+                    itens: []
+                };
+            }
+            
+            if (tipo === 'BASE') {
+                composicoes[id].base[atributo] = (composicoes[id].base[atributo] || 0) + qtd;
+            } else {
+                composicoes[id].func[atributo] = (composicoes[id].func[atributo] || 0) + qtd;
+            }
+            
+            composicoes[id].itens.push({ desc: row.Descricao_Material, qtd: qtd, tipo: tipo });
+        });
+    }
+
+    function cosineSimilarity(vecA, vecB) {
+        let dotProduct = 0, mA = 0, mB = 0;
+        const keys = new Set([...Object.keys(vecA), ...Object.keys(vecB)]);
+        for (let key of keys) {
+            const valA = vecA[key] || 0;
+            const valB = vecB[key] || 0;
+            dotProduct += valA * valB;
+            mA += valA * valA;
+            mB += valB * valB;
+        }
+        mA = Math.sqrt(mA); mB = Math.sqrt(mB);
+        return (mA === 0 || mB === 0) ? 0 : dotProduct / (mA * mB);
+    }
+
+    function analisar() {
+        const targetId = document.getElementById('targetId').value.trim();
+        const topN = parseInt(document.getElementById('topN').value);
+        
+        if (!composicoes[targetId]) {
+            alert("ID não encontrado no banco de dados!");
+            return;
+        }
+
+        const alvo = composicoes[targetId];
+        renderAlvo(alvo);
+
+        const resultados = [];
+        Object.keys(composicoes).forEach(id => {
+            if (id === targetId) return;
+            const comp = composicoes[id];
+            
+            const simBase = cosineSimilarity(alvo.base, comp.base);
+            let simFunc = 0;
+            const somaAlvoFunc = Object.values(alvo.func).reduce((a, b) => a + b, 0);
+            const somaCompFunc = Object.values(comp.func).reduce((a, b) => a + b, 0);
+
+            if (somaAlvoFunc === 0) {
+                simFunc = (somaCompFunc === 0) ? 1.0 : 0.0;
+            } else {
+                simFunc = cosineSimilarity(alvo.func, comp.func);
+            }
+
+            resultados.push({
+                ...comp,
+                simBase, simFunc,
+                simFinal: (simBase + simFunc) / 2
+            });
+        });
+
+        resultados.sort((a, b) => b.simFinal - a.simFinal);
+        renderResultados(resultados.slice(0, topN));
+    }
+
+    function renderAlvo(alvo) {
+        document.getElementById('alvoContainer').innerHTML = `
+            <div class="card border-primary shadow-sm mb-4">
+                <div class="card-header bg-primary text-white fw-bold">Fórmula Selecionada</div>
+                <div class="card-body">
+                    <h5 class="card-title text-primary">${alvo.nome}</h5>
+                    <p class="text-muted small">ID: ${alvo.id}</p>
+                    <hr>
+                    <h6>Composição:</h6>
+                    <div class="scroll-area">
+                        ${alvo.itens.map(i => `
+                            <div class="mb-1 small">
+                                <span class="${i.tipo === 'BASE' ? 'tag-base' : 'tag-func'}">${i.tipo}</span>
+                                <strong>${i.qtd.toFixed(2)}%</strong> ${i.desc}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderResultados(lista) {
+        let html = `<h4 class="mb-4">Top Similares Encontradas</h4>`;
+        lista.forEach(res => {
+            const perc = (res.simFinal * 100).toFixed(1);
+            html += `
+                <div class="card comp-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="mb-0">${res.nome}</h5>
+                                <small class="text-muted">ID: ${res.id}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="h4 mb-0 text-success">${perc}%</span><br>
+                                <small class="text-muted">similaridade</small>
+                            </div>
+                        </div>
+                        
+                        <div class="similarity-bar">
+                            <div class="similarity-fill" style="width: ${perc}%"></div>
+                        </div>
+                        
+                        <div class="row mt-3 small text-muted">
+                            <div class="col-6">🧬 Resinas: <strong>${(res.simBase*100).toFixed(1)}%</strong></div>
+                            <div class="col-6">🧪 Aditivos: <strong>${(res.simFunc*100).toFixed(1)}%</strong></div>
+                        </div>
+
+                        <details class="mt-3">
+                            <summary class="btn btn-sm btn-outline-secondary">Ver Composição Completa</summary>
+                            <div class="mt-2 p-2 bg-light rounded">
+                                ${res.itens.map(i => `
+                                    <div class="small border-bottom py-1">
+                                        <strong>${i.qtd.toFixed(2)}%</strong> ${i.desc}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('resultadosContainer').innerHTML = html;
+    }
+</script>
+
+</body>
+</html>
