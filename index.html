@@ -3,383 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formula Matcher | Interactive Tree</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>Formula Matcher | Auditoria Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #111827; --card-bg: #1f2937; --border: #374151;
-            --text: #f3f4f6; --text-dim: #9ca3af;
-            --primary: #3b82f6; --accent: #8b5cf6;
-            --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding-bottom: 50px; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-
-        /* Header */
-        header { border-bottom: 1px solid var(--border); padding: 20px 0; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-        .brand { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--primary); font-size: 1.5rem; }
-        
-        /* Search Bar */
-        .search-container { display: flex; gap: 10px; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px; }
-        input, select { background: #000; border: 1px solid var(--border); color: white; padding: 10px 15px; border-radius: 8px; font-family: 'Inter'; }
-        button.btn-search { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        button.btn-search:hover { filter: brightness(1.1); }
-
-        /* Layout Principal */
-        .grid-layout { display: grid; grid-template-columns: 380px 1fr; gap: 30px; align-items: start; }
-        
-        /* Card Alvo */
-        .target-card { position: sticky; top: 20px; background: rgba(59, 130, 246, 0.1); border: 1px solid var(--primary); border-radius: 12px; padding: 20px; }
-        .target-header { border-bottom: 1px solid rgba(59, 130, 246, 0.3); padding-bottom: 10px; margin-bottom: 15px; }
-        
-        /* Área de Filtros (A "Árvore") */
-        .filters-panel { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .filters-title { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .filters-container { display: flex; flex-wrap: wrap; gap: 10px; }
-        
-        .filter-chip { 
-            padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; border: 1px solid var(--border); 
-            background: #111; color: var(--text-dim); transition: 0.2s; user-select: none;
-        }
-        .filter-chip:hover { border-color: var(--text); color: var(--text); }
-        .filter-chip.active { background: var(--success); color: #000; border-color: var(--success); font-weight: 700; }
-        .filter-chip.match { border-color: var(--warning); color: var(--warning); } /* Se o alvo já tem */
-
-        /* Lista de Resultados */
-        .results-list { display: flex; flex-direction: column; gap: 15px; }
-        .result-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: 0.3s; }
-        .result-card.hidden { display: none; }
-        .result-card:hover { border-color: var(--text-dim); transform: translateY(-2px); }
-
-        /* Score e Badges */
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .similarity-badge { background: #111; padding: 5px 10px; border-radius: 6px; text-align: right; border: 1px solid var(--border); }
-        .score-val { color: var(--primary); font-weight: 800; font-size: 1.4rem; }
-        .score-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
-
-        /* Estrutura Visual */
-        .structure-preview { margin-top: 15px; font-size: 0.85rem; }
-        .layer-row { display: flex; gap: 10px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .layer-name { color: var(--primary); font-weight: bold; min-width: 60px; font-size: 0.75rem; }
-        
-        .mat-tag { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 5px; display: inline-block; }
-        .tag-res { color: #93c5fd; background: rgba(59, 130, 246, 0.15); }
-        .tag-fun { color: #fbbf24; background: rgba(245, 158, 11, 0.15); }
-
-        /* Loader */
-        #loader { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
-        .loader-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite; margin-bottom: 15px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .fade-out { opacity: 0; pointer-events: none; transition: 0.5s; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        details summary::-webkit-details-marker { display: none; }
     </style>
 </head>
-<body>
+<body class="h-screen flex flex-col overflow-hidden">
 
-<div id="loader">
-    <div class="loader-spinner"></div>
-    <div style="font-family: 'JetBrains Mono'; color: var(--primary);">Carregando Base de Dados...</div>
-</div>
-
-<div class="container">
-    <header>
-        <div class="brand">Formula Matcher <span style="font-size:0.8rem; color:#666;">v5.0 Interactive</span></div>
-        <div id="db-status" style="font-size: 0.8rem; color: var(--success);">● Online</div>
+    <!-- HEADER -->
+    <header class="h-16 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-6 shrink-0">
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-bold text-sky-400 tracking-tight">Formula<span class="text-white">Matcher</span></h1>
+            <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600">
+                <input type="text" id="targetId" placeholder="ID Alvo (Ex: 424)" class="bg-transparent px-3 py-1 text-sm outline-none w-32 mono">
+                <button onclick="buscar()" class="bg-sky-600 hover:bg-sky-500 px-4 py-1 rounded-md text-sm font-bold transition-all">Analisar</button>
+            </div>
+        </div>
+        <div id="db-info" class="text-xs text-slate-500 mono">Carregando...</div>
     </header>
 
-    <div class="search-container">
-        <input type="text" id="targetId" placeholder="ID da Fórmula Alvo (ex: 424)" style="width: 250px;">
-        <select id="topN">
-            <option value="10">Analisar Top 10</option>
-            <option value="20" selected>Analisar Top 20</option>
-            <option value="50">Analisar Top 50</option>
-        </select>
-        <button onclick="iniciarAnalise()" class="btn-search">Buscar Similares</button>
-    </div>
-
-    <div class="grid-layout">
-        <!-- Coluna Esquerda: Alvo -->
-        <div>
-            <div id="alvo-container">
-                <div style="text-align: center; color: var(--text-dim); padding: 40px; border: 1px dashed var(--border); border-radius: 12px;">
-                    Aguardando Busca...
-                </div>
+    <main class="flex-1 flex overflow-hidden">
+        <!-- SIDEBAR: ALVO -->
+        <aside class="w-80 bg-slate-900 border-r border-slate-700 flex flex-col shrink-0">
+            <div class="p-4 border-b border-slate-700 text-xs font-bold text-slate-500 uppercase">Fórmula de Referência</div>
+            <div id="target-area" class="flex-1 overflow-y-auto p-4 custom-scroll">
+                <div class="text-center mt-20 text-slate-600 text-sm">Digite um ID para iniciar.</div>
             </div>
-        </div>
+        </aside>
 
-        <!-- Coluna Direita: Filtros e Resultados -->
-        <div>
-            <!-- Painel de Filtros Dinâmicos -->
-            <div id="filters-panel" class="filters-panel" style="display:none;">
-                <div class="filters-title">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                    <span>REFINE POR ADITIVOS (Clique para filtrar)</span>
-                    <button onclick="limparFiltros()" style="margin-left:auto; background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:0.75rem; text-decoration:underline;">Limpar</button>
+        <!-- CONTEÚDO: FILTROS E RESULTADOS -->
+        <section class="flex-1 flex flex-col bg-slate-950">
+            <!-- PAINEL DE VETOS -->
+            <div id="veto-panel" class="hidden p-4 bg-slate-900/50 border-b border-slate-800">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Vetar Aditivos Extras (Clique para ocultar fórmulas)</span>
+                    <button onclick="resetVetos()" class="text-[10px] text-sky-400 hover:underline">Limpar Bloqueios</button>
                 </div>
-                <div id="filters-container" class="filters-container"></div>
+                <div id="veto-chips" class="flex flex-wrap gap-2"></div>
             </div>
 
-            <!-- Lista -->
-            <div id="results-list" class="results-list"></div>
-        </div>
-    </div>
-</div>
+            <!-- LISTA -->
+            <div id="results-area" class="flex-1 overflow-y-auto p-6 custom-scroll">
+                <div id="empty-msg" class="text-center mt-20 text-slate-500">Aguardando análise estrutural...</div>
+                <div id="results-list" class="max-w-4xl mx-auto space-y-4"></div>
+            </div>
+        </section>
+    </main>
 
 <script>
     const CSV_URL = 'https://andregazineu.github.io/Formula-Matcher/database_limpo_final.csv';
     let DB = {};
-    let RESULTADOS_ATUAIS = []; // Armazena os candidatos calculados
-    let FILTROS_ATIVOS = new Set();
+    let CURRENT_RESULTS = [];
+    let ACTIVE_VETOS = new Set();
 
-    // 1. Inicialização
+    // 1. Carregamento
     window.onload = () => {
         Papa.parse(CSV_URL, {
             download: true, header: true, dynamicTyping: true, skipEmptyLines: true, delimiter: ";",
-            complete: (results) => {
-                processarBanco(results.data);
-                document.getElementById('loader').classList.add('fade-out');
+            complete: (res) => {
+                res.data.forEach(row => {
+                    const id = String(row.ID_Composicao);
+                    if (!DB[id]) DB[id] = { id, nome: row.Nome_Composicao, vetorBase: {}, vetorCor: {}, aditivosMap: new Map(), itens: [] };
+                    
+                    const desc = String(row.Descricao_Material).toUpperCase().replace(/"/g, '');
+                    const tipo = desc.startsWith('PIG.') ? 'PIG' : (desc.startsWith('ADIT.') ? 'ADIT' : 'BASE');
+                    const chave = `${row.Grupo_Rosca}_${row.Cod_Material}`;
+                    const qtdF = row.Qtd_Corrigida_No_Filme || 0;
+
+                    if (tipo === 'BASE') DB[id].vetorBase[chave] = (DB[id].vetorBase[chave] || 0) + qtdF;
+                    if (tipo === 'PIG') DB[id].vetorCor[chave] = (DB[id].vetorCor[chave] || 0) + qtdF;
+                    
+                    if (tipo !== 'BASE') {
+                        const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
+                        DB[id].aditivosMap.set(nomeLimpo, (DB[id].aditivosMap.get(nomeLimpo) || 0) + qtdF);
+                    }
+
+                    DB[id].itens.push({ desc, tipo, rosca: row.Grupo_Rosca, perc: row.Percentual_Rosca, qtd: row.Qtd_Original_Na_Rosca || 0 });
+                });
+                document.getElementById('db-info').textContent = `DB: ${Object.keys(DB).length} fórmulas`;
             }
         });
     };
 
-    function processarBanco(data) {
-        data.forEach(row => {
-            const id = String(row.ID_Composicao);
-            const desc = String(row.Descricao_Material).toUpperCase();
-            
-            // Classificação
-            let tipo = 'BASE';
-            let nomeFiltro = null;
-
-            if (desc.startsWith('PIG.')) tipo = 'PIGMENTO';
-            else if (desc.startsWith('ADIT.')) {
-                tipo = 'ADITIVO';
-                // Remove prefixo para ficar bonito no botão (ex: "ADIT. UV" -> "UV")
-                nomeFiltro = desc.replace(/^ADIT\.\s*/, '').split(' -')[0].trim(); 
-            }
-
-            if (!DB[id]) {
-                DB[id] = { id, nome: row.Nome_Composicao, vetorBase: {}, vetorPig: {}, aditivosSet: new Set(), itens: [] };
-            }
-
-            const chave = `${row.Grupo_Rosca}_${row.Cod_Material}`;
-            const qtd = row.Qtd_Corrigida_No_Filme || 0;
-
-            if (tipo === 'BASE') DB[id].vetorBase[chave] = (DB[id].vetorBase[chave] || 0) + qtd;
-            if (tipo === 'PIGMENTO') DB[id].vetorPig[chave] = (DB[id].vetorPig[chave] || 0) + qtd;
-            if (tipo === 'ADITIVO' && nomeFiltro) DB[id].aditivosSet.add(nomeFiltro);
-
-            DB[id].itens.push({
-                desc: row.Descricao_Material,
-                displayDesc: desc.replace(/^ADIT\.\s*/, '').replace(/^PIG\.\s*/, ''),
-                tipo: tipo,
-                rosca: row.Grupo_Rosca,
-                percRosca: row.Percentual_Rosca,
-                qtd: row.Qtd_Original_Na_Rosca || 0
-            });
-        });
-    }
-
     // 2. Matemática
-    function cosseno(vecA, vecB) {
-        let dot = 0, mA = 0, mB = 0;
-        const keys = new Set([...Object.keys(vecA), ...Object.keys(vecB)]);
-        for (let k of keys) {
-            const vA = vecA[k] || 0; const vB = vecB[k] || 0;
-            dot += vA * vB; mA += vA * vA; mB += vB * vB;
-        }
-        if (mA === 0 && mB === 0) return 1.0;
-        if (mA === 0 || mB === 0) return 0.0;
-        return dot / (Math.sqrt(mA) * Math.sqrt(mB));
+    function cosseno(v1, v2) {
+        let dot = 0, m1 = 0, m2 = 0;
+        const keys = new Set([...Object.keys(v1), ...Object.keys(v2)]);
+        keys.forEach(k => {
+            const a = v1[k] || 0, b = v2[k] || 0;
+            dot += a * b; m1 += a * a; m2 += b * b;
+        });
+        return (m1 && m2) ? dot / (Math.sqrt(m1) * Math.sqrt(m2)) : (m1 === m2 ? 1 : 0);
     }
 
-    function temPigmento(comp) { return Object.keys(comp.vetorPig).length > 0; }
-
-    // 3. Motor de Busca
-    function iniciarAnalise() {
-        const targetId = document.getElementById('targetId').value.trim();
-        if (!DB[targetId]) return alert("ID não encontrado!");
-
-        const alvo = DB[targetId];
+    // 3. Busca e Auditoria
+    function buscar() {
+        const id = document.getElementById('targetId').value.trim();
+        if (!DB[id]) return alert("ID não encontrado");
+        
+        const alvo = DB[id];
         renderAlvo(alvo);
-        
-        // Resetar interface
-        FILTROS_ATIVOS.clear();
-        document.getElementById('filters-panel').style.display = 'block';
+        ACTIVE_VETOS.clear();
+        document.getElementById('veto-panel').classList.remove('hidden');
+        document.getElementById('empty-msg').classList.add('hidden');
 
-        const candidatos = [];
-        const alvoTemCor = temPigmento(alvo);
+        const alvoCor = Object.keys(alvo.vetorCor).length > 0;
+        const lista = [];
 
-        Object.keys(DB).forEach(id => {
-            if (id === targetId) return;
-            const cand = DB[id];
+        Object.values(DB).forEach(cand => {
+            if (cand.id === id) return;
+            
+            // Filtro de Cor Rígido
+            const candCor = Object.keys(cand.vetorCor).length > 0;
+            if (alvoCor !== candCor) return;
+            if (alvoCor && cosseno(alvo.vetorCor, cand.vetorCor) < 0.9) return;
 
-            // Filtro de Cor (Porteiro)
-            const candTemCor = temPigmento(cand);
-            if (alvoTemCor !== candTemCor) return;
-            if (alvoTemCor && cosseno(alvo.vetorPig, cand.vetorPig) < 0.8) return;
-
-            // Similaridade Estrutural (Resinas)
+            // Similaridade de Resina
             const score = cosseno(alvo.vetorBase, cand.vetorBase);
-
-            if (score > 0.5) { // Corte mínimo
-                candidatos.push({ ...cand, score: score });
+            if (score > 0.4) {
+                // Auditoria de Diferenças
+                const extras = [], faltas = [];
+                cand.aditivosMap.forEach((q, n) => { if (!alvo.aditivosMap.has(n)) extras.push({ n, q }); });
+                alvo.aditivosMap.forEach((q, n) => { if (!cand.aditivosMap.has(n)) faltas.push(n); });
+                lista.push({ ...cand, score, extras, faltas });
             }
         });
 
-        // Ordenar por Resina
-        candidatos.sort((a, b) => b.score - a.score);
-        
-        // Cortar Top N
-        const topN = parseInt(document.getElementById('topN').value);
-        RESULTADOS_ATUAIS = candidatos.slice(0, topN);
-
-        gerarFiltrosDinamicos(alvo);
-        atualizarListaVisual();
+        CURRENT_RESULTS = lista.sort((a, b) => b.score - a.score);
+        atualizarUI();
     }
 
-    // 4. Lógica de Filtros (Árvore)
-    function gerarFiltrosDinamicos(alvo) {
-        const container = document.getElementById('filters-container');
-        container.innerHTML = '';
+    // 4. UI e Vetos
+    function atualizarUI() {
+        const vetoContainer = document.getElementById('veto-chips');
+        const listContainer = document.getElementById('results-list');
+        vetoContainer.innerHTML = '';
+        listContainer.innerHTML = '';
 
-        // Coletar TODOS os aditivos presentes nos Top Candidatos
-        const todosAditivos = new Set();
-        RESULTADOS_ATUAIS.forEach(cand => {
-            cand.aditivosSet.forEach(ad => todosAditivos.add(ad));
+        const extrasCount = new Map();
+        const visiveis = CURRENT_RESULTS.filter(c => {
+            const bloqueado = c.extras.some(e => ACTIVE_VETOS.has(e.n));
+            if (!bloqueado) c.extras.forEach(e => extrasCount.set(e.n, (extrasCount.get(e.n) || 0) + 1));
+            return !bloqueado;
         });
 
-        // Criar botões
-        Array.from(todosAditivos).sort().forEach(ad => {
-            const btn = document.createElement('div');
-            btn.className = 'filter-chip';
-            btn.textContent = ad;
+        // Render Chips
+        extrasCount.forEach((count, nome) => {
+            const btn = document.createElement('button');
+            btn.className = `text-[10px] px-2 py-1 rounded border border-slate-700 bg-slate-800 hover:border-sky-500 transition-all`;
+            btn.innerHTML = `Bloquear ${nome} <span class="text-sky-400 ml-1">${count}</span>`;
+            btn.onclick = () => { ACTIVE_VETOS.add(nome); atualizarUI(); };
+            vetoContainer.appendChild(btn);
+        });
+
+        // Render Cards
+        visiveis.slice(0, 20).forEach(c => {
+            const card = document.createElement('div');
+            card.className = "bg-slate-900 border border-slate-800 p-4 rounded-xl hover:border-sky-500/50 transition-all";
             
-            // Se o alvo já tem esse aditivo, destaca visualmente (opcional)
-            if (alvo.aditivosSet.has(ad)) {
-                btn.classList.add('match'); 
-                btn.title = "Presente na fórmula alvo";
-            }
+            let diffHtml = c.extras.map(e => `<span class="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded">+ ${e.n} (${e.q.toFixed(1)}%)</span>`).join('');
+            diffHtml += c.faltas.map(f => `<span class="text-[10px] bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded">- Falta: ${f}</span>`).join('');
+            if (!diffHtml) diffHtml = `<span class="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded">Aditivação Idêntica</span>`;
 
-            btn.onclick = () => toggleFiltro(ad, btn);
-            container.appendChild(btn);
-        });
-    }
-
-    function toggleFiltro(ad, btnElement) {
-        if (FILTROS_ATIVOS.has(ad)) {
-            FILTROS_ATIVOS.delete(ad);
-            btnElement.classList.remove('active');
-        } else {
-            FILTROS_ATIVOS.add(ad);
-            btnElement.classList.add('active');
-        }
-        atualizarListaVisual();
-    }
-
-    function limparFiltros() {
-        FILTROS_ATIVOS.clear();
-        document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-        atualizarListaVisual();
-    }
-
-    function atualizarListaVisual() {
-        const container = document.getElementById('results-list');
-        container.innerHTML = '';
-        
-        let visiveis = 0;
-
-        RESULTADOS_ATUAIS.forEach(cand => {
-            // Verifica se o candidato tem TODOS os filtros ativos
-            let atendeFiltros = true;
-            for (let filtro of FILTROS_ATIVOS) {
-                if (!cand.aditivosSet.has(filtro)) {
-                    atendeFiltros = false;
-                    break;
-                }
-            }
-
-            if (atendeFiltros) {
-                visiveis++;
-                container.appendChild(criarCardResultado(cand));
-            }
-        });
-
-        if (visiveis === 0) {
-            container.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Nenhuma fórmula atende a combinação de aditivos selecionada.</div>';
-        }
-    }
-
-    // 5. Renderização
-    function criarCardResultado(dados) {
-        const div = document.createElement('div');
-        div.className = 'result-card';
-        div.innerHTML = `
-            <div class="card-top">
-                <div>
-                    <div style="color:white; font-weight:700;">${dados.nome}</div>
-                    <div style="font-size:0.8rem; color:var(--text-dim);">ID: ${dados.id}</div>
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-bold text-white">${c.nome}</h3>
+                        <span class="text-[10px] mono text-slate-500">ID: ${c.id}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-black text-sky-500">${(c.score * 100).toFixed(0)}%</div>
+                        <div class="text-[8px] uppercase text-slate-500">Resina</div>
+                    </div>
                 </div>
-                <div class="similarity-badge">
-                    <div class="score-val">${(dados.score * 100).toFixed(0)}%</div>
-                    <div class="score-label">Resina</div>
-                </div>
-            </div>
-            
-            <details>
-                <summary style="cursor:pointer; color:var(--primary); font-size:0.8rem;">Ver Composição</summary>
-                <div class="structure-preview">
-                    ${gerarLinhasItens(dados.itens)}
-                </div>
-            </details>
-        `;
-        return div;
-    }
-
-    function renderAlvo(dados) {
-        document.getElementById('alvo-container').innerHTML = `
-            <div class="target-card">
-                <div class="target-header">
-                    <div style="font-size:0.7rem; color:var(--primary); font-weight:bold;">REFERÊNCIA</div>
-                    <h3 style="color:white; margin:5px 0;">${dados.nome}</h3>
-                    <div style="color:var(--text-dim); font-size:0.9rem;">ID: ${dados.id}</div>
-                </div>
-                <div class="structure-preview">
-                    ${gerarLinhasItens(dados.itens)}
-                </div>
-            </div>
-        `;
-    }
-
-    function gerarLinhasItens(itens) {
-        // Agrupar por rosca
-        const grupos = itens.reduce((acc, item) => {
-            if (!acc[item.rosca]) acc[item.rosca] = { perc: item.percRosca, html: [] };
-            
-            const classe = item.tipo === 'BASE' ? 'tag-res' : (item.tipo === 'PIGMENTO' ? 'tag-fun' : 'tag-fun'); // Pigmento usa cor func visualmente aqui
-            const html = `
-                <div class="layer-row">
-                    <span class="mat-tag ${classe}">${item.tipo.substring(0,3)}</span>
-                    <span style="color:#ddd; flex:1;">${item.displayDesc}</span>
-                    <strong style="color:var(--text);">${item.qtd.toFixed(1)}%</strong>
-                </div>
+                <div class="flex flex-wrap gap-2 mb-4">${diffHtml}</div>
+                <details class="group">
+                    <summary class="text-xs text-slate-500 cursor-pointer hover:text-sky-400">Ver Estrutura Detalhada</summary>
+                    <div class="mt-3 space-y-2 border-t border-slate-800 pt-3">${renderEstrutura(c.itens)}</div>
+                </details>
             `;
-            acc[item.rosca].html.push(html);
+            listContainer.appendChild(card);
+        });
+    }
+
+    function renderAlvo(alvo) {
+        document.getElementById('target-area').innerHTML = `
+            <div class="mb-4">
+                <h2 class="font-bold text-white leading-tight">${alvo.nome}</h2>
+                <div class="text-xs mono text-sky-500 mt-1">ID: ${alvo.id}</div>
+            </div>
+            <div class="space-y-4">${renderEstrutura(alvo.itens)}</div>
+        `;
+    }
+
+    function renderEstrutura(itens) {
+        const grupos = itens.reduce((acc, i) => {
+            if (!acc[i.rosca]) acc[i.rosca] = { p: i.perc, h: [] };
+            const cor = i.tipo === 'BASE' ? 'text-sky-400' : (i.tipo === 'PIG' ? 'text-purple-400' : 'text-amber-400');
+            acc[i.rosca].h.push(`<div class="flex justify-between text-[10px] py-0.5 border-b border-white/5"><span class="truncate ${cor} opacity-80">${i.desc}</span><span class="mono ml-2">${i.qtd.toFixed(1)}%</span></div>`);
             return acc;
         }, {});
-
-        return Object.keys(grupos).sort().map(r => `
-            <div style="margin-top:10px;">
-                <div style="font-size:0.75rem; color:#666; font-weight:bold; border-bottom:1px solid #333; margin-bottom:5px;">
-                    ${r} (${grupos[r].perc}%)
-                </div>
-                ${grupos[r].html.join('')}
-            </div>
-        `).join('');
+        return Object.keys(grupos).sort().map(r => `<div class="mb-2"><div class="flex justify-between text-[9px] font-bold text-slate-500 uppercase mb-1"><span>${r}</span><span>${grupos[r].p}%</span></div>${grupos[r].h.join('')}</div>`).join('');
     }
-</script>
 
+    function resetVetos() { ACTIVE_VETOS.clear(); atualizarUI(); }
+</script>
 </body>
 </html>
