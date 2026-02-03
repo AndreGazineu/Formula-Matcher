@@ -3,76 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formula Matcher | Precision Audit</title>
+    <title>Formula Matcher</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         details summary::-webkit-details-marker { display: none; }
-        .audit-box { background: rgba(0, 0, 0, 0.25); border-left: 4px solid #334155; }
-        .audit-diff { border-color: #38bdf8; color: #7dd3fc; } /* Azul para mudança de dose */
-        .audit-extra { border-color: #f59e0b; color: #fbce77; } /* Amarelo para extra */
-        .audit-falta { border-color: #ef4444; color: #f87171; } /* Vermelho para falta */
-        .audit-identico { border-color: #10b981; color: #34d399; } /* Verde para 100% igual */
+        
+        /* Tooltip Ajustado */
+        .tooltip-container { position: relative; display: inline-flex; align-items: center; }
+        .tooltip-text { 
+            visibility: hidden; width: 220px; background-color: #1e293b; color: #fff; 
+            text-align: left; border-radius: 8px; padding: 12px; position: absolute; 
+            z-index: 50; top: 150%; left: 50%; transform: translateX(-50%); opacity: 0; 
+            transition: opacity 0.2s; border: 1px solid #334155; font-size: 12px; line-height: 1.4;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+        }
+        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="min-h-screen flex flex-col overflow-x-hidden">
 
     <!-- HEADER -->
-    <header class="h-20 bg-slate-900 border-b border-slate-700 flex items-center justify-between px-6 shrink-0 z-20 shadow-xl">
-        <div class="flex items-center gap-8">
-            <h1 class="text-xl font-bold text-sky-400 tracking-tight">Formula<span class="text-white">Matcher</span> <span class="text-[10px] bg-sky-500/20 px-2 py-0.5 rounded text-sky-300 ml-2 uppercase">v13.0 Precision</span></h1>
+    <header class="bg-slate-900 border-b border-slate-700 p-4 shrink-0 z-20 shadow-xl">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6">
+            <h1 class="text-2xl font-bold text-sky-400 tracking-tight shrink-0">Formula<span class="text-white">Matcher</span></h1>
             
-            <div class="flex gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                <!-- BUSCA POR ID -->
                 <div class="flex flex-col">
-                    <label class="text-[9px] uppercase font-bold text-slate-500 mb-1">ID Fórmula</label>
-                    <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600">
-                        <input type="text" id="targetId" placeholder="Ex: 466" class="bg-transparent px-3 py-1 text-sm outline-none w-24 mono text-white">
-                        <button onclick="buscarPorId()" class="bg-sky-600 hover:bg-sky-500 px-3 py-1 rounded-md text-xs font-bold transition-all">Analisar</button>
+                    <div class="flex items-center gap-2 mb-1 ml-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">ID Fórmula</label>
+                        <div class="tooltip-container">
+                            <span class="text-[10px] bg-slate-700 text-slate-300 rounded-full w-4 h-4 flex items-center justify-center cursor-help font-bold">?</span>
+                            <div class="tooltip-text">
+                                <b class="text-sky-400">Analisar:</b> Digite o ID técnico da composição para encontrar outras fórmulas que possuam a mesma base de resinas.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 focus-within:border-sky-500 transition-colors">
+                        <input type="text" id="targetId" placeholder="Ex: 466" class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
+                        <button onclick="buscarPorId()" class="bg-sky-600 hover:bg-sky-500 px-5 py-2 rounded-md text-xs font-bold transition-all">Analisar</button>
                     </div>
                 </div>
 
+                <!-- BUSCA POR PRODUTO -->
                 <div class="flex flex-col">
-                    <label class="text-[9px] uppercase font-bold text-slate-500 mb-1">Localizar por Produto (ERP)</label>
-                    <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 w-80">
-                        <input type="text" id="productSearch" list="productList" placeholder="Nome do produto..." class="bg-transparent px-3 py-1 text-sm outline-none w-full text-white">
+                    <div class="flex items-center gap-2 mb-1 ml-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Localizar Produto</label>
+                        <div class="tooltip-container">
+                            <span class="text-[10px] bg-slate-700 text-slate-300 rounded-full w-4 h-4 flex items-center justify-center cursor-help font-bold">?</span>
+                            <div class="tooltip-text">
+                                <b class="text-emerald-400">Localizar:</b> Digite o nome ou código do produto final. O sistema identificará qual fórmula ele usa e iniciará a análise.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 focus-within:border-emerald-500 transition-colors">
+                        <input type="text" id="productSearch" list="productList" placeholder="Digite código ou nome..." class="bg-transparent px-3 py-2 text-sm outline-none w-full text-white">
                         <datalist id="productList"></datalist>
-                        <button onclick="buscarPorProduto()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded-md text-xs font-bold transition-all">Localizar</button>
+                        <button onclick="buscarPorProduto()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-md text-xs font-bold transition-all">Localizar</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="db-info" class="text-xs text-slate-500 mono">Sincronizando...</div>
     </header>
 
-    <main class="flex-1 flex overflow-hidden">
-        <!-- SIDEBAR -->
-        <aside class="w-96 bg-slate-900 border-r border-slate-700 flex flex-col shrink-0 shadow-2xl z-10">
-            <div class="p-4 border-b border-slate-700 text-xs font-bold text-slate-500 uppercase flex justify-between items-center">
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        <!-- SIDEBAR (ALVO) -->
+        <aside class="w-full lg:w-96 bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-700 flex flex-col shrink-0 shadow-2xl z-10 overflow-y-auto lg:overflow-hidden">
+            <div class="p-4 border-b border-slate-700 text-[10px] font-bold text-slate-500 uppercase flex justify-between items-center sticky top-0 bg-slate-900">
                 <span>Referência Técnica</span>
                 <span id="target-prod-count" class="text-sky-500 font-mono"></span>
             </div>
-            <div id="target-area" class="flex-1 overflow-y-auto p-5 custom-scroll">
-                <div class="text-center mt-32 text-slate-600 text-sm px-10 italic">Aguardando definição de alvo...</div>
+            <div id="target-area" class="flex-1 lg:overflow-y-auto p-5 custom-scroll">
+                <div class="text-center mt-10 text-slate-600 text-sm italic">Aguardando definição de alvo...</div>
             </div>
         </aside>
 
-        <!-- CONTEÚDO -->
-        <section class="flex-1 flex flex-col bg-slate-950 relative">
-            <div id="veto-panel" class="hidden p-4 bg-slate-900/80 border-b border-slate-800">
+        <!-- CONTEÚDO (RESULTADOS) -->
+        <section class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
+            <!-- VETOS -->
+            <div id="veto-panel" class="hidden p-4 bg-slate-900/80 backdrop-blur border-b border-slate-800">
                 <div class="flex justify-between items-center mb-3">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ocultar fórmulas com estes materiais extras:</span>
-                    <button onclick="resetVetos()" class="text-[10px] text-sky-400 hover:underline">Mostrar Tudo</button>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ocultar materiais extras:</span>
+                    <button onclick="resetVetos()" class="text-[10px] text-sky-400 underline">Limpar Filtros</button>
                 </div>
                 <div id="veto-chips" class="flex flex-wrap gap-2"></div>
             </div>
 
-            <div id="results-area" class="flex-1 overflow-y-auto p-8 custom-scroll">
-                <div id="results-list" class="max-w-4xl mx-auto space-y-10"></div>
+            <!-- LISTA -->
+            <div id="results-area" class="flex-1 overflow-y-auto p-4 md:p-8 custom-scroll">
+                <div id="results-list" class="max-w-4xl mx-auto space-y-6"></div>
             </div>
         </section>
     </main>
@@ -106,13 +131,9 @@
                         }
                     });
                 });
-
                 Papa.parse(FORMULAS_URL, {
                     download: true, header: true, dynamicTyping: true, skipEmptyLines: true, delimiter: ";",
-                    complete: (resForm) => {
-                        processarFormulas(resForm.data);
-                        document.getElementById('db-info').innerHTML = `Fórmulas: ${Object.keys(DB).length} | ERP OK`;
-                    }
+                    complete: (resForm) => processarFormulas(resForm.data)
                 });
             }
         });
@@ -128,31 +149,52 @@
             const chave = `${row.Grupo_Rosca}_${row.Cod_Material}`;
             const qtdF = row.Qtd_Corrigida_No_Filme || 0;
             const qtdR = row.Qtd_Original_Na_Rosca || 0;
-
             if (tipo === 'BASE') DB[id].vetorBase[chave] = (DB[id].vetorBase[chave] || 0) + qtdF;
             if (tipo === 'PIG') DB[id].vetorCor[chave] = (DB[id].vetorCor[chave] || 0) + qtdF;
-            
-            // Guardamos a dosagem original na rosca para auditoria precisa
             if (tipo !== 'BASE') {
                 const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
-                // Usamos a chave Rosca_Material para saber exatamente onde está a diferença
-                const chaveAuditoria = `${row.Grupo_Rosca}: ${nomeLimpo}`;
-                DB[id].aditivosMap.set(chaveAuditoria, qtdR);
+                DB[id].aditivosMap.set(`${row.Grupo_Rosca}: ${nomeLimpo}`, qtdR);
             }
             DB[id].itens.push({ desc, tipo, rosca: row.Grupo_Rosca, perc: row.Percentual_Rosca, qtd: qtdR });
         });
     }
 
-    function buscarPorId() { const id = document.getElementById('targetId').value.trim().replace(/^0+/, ''); executarAnalise(id); }
-    function buscarPorProduto() { const id = REVERSE_PROD_MAP[document.getElementById('productSearch').value.trim()]; if (id) executarAnalise(id); else alert("Produto não encontrado."); }
+    function buscarPorId() { 
+        const id = document.getElementById('targetId').value.trim().replace(/^0+/, ''); 
+        executarAnalise(id); 
+    }
+
+    function buscarPorProduto() {
+        const input = document.getElementById('productSearch').value.trim().toUpperCase();
+        if (!input) return;
+
+        // 1. Tenta busca exata
+        let id = REVERSE_PROD_MAP[input];
+
+        // 2. Se não achar, tenta busca parcial (fuzzy)
+        if (!id) {
+            const keys = Object.keys(REVERSE_PROD_MAP);
+            const foundKey = keys.find(k => k.toUpperCase().includes(input));
+            if (foundKey) {
+                id = REVERSE_PROD_MAP[foundKey];
+                document.getElementById('productSearch').value = foundKey; // Atualiza o input com o nome completo
+            }
+        }
+
+        if (id) {
+            document.getElementById('targetId').value = id;
+            executarAnalise(id);
+        } else {
+            alert("Produto não encontrado no relatório ERP.");
+        }
+    }
 
     function executarAnalise(id) {
-        if (!DB[id]) return alert("ID não encontrado.");
+        if (!DB[id]) return alert("ID de composição não localizado.");
         const alvo = DB[id];
         renderAlvo(alvo);
         ACTIVE_VETOS.clear();
         document.getElementById('veto-panel').classList.remove('hidden');
-
         const alvoCor = Object.keys(alvo.vetorCor).length > 0;
         const lista = [];
         Object.values(DB).forEach(cand => {
@@ -160,28 +202,17 @@
             const candCor = Object.keys(cand.vetorCor).length > 0;
             if (alvoCor !== candCor) return;
             if (alvoCor && cosseno(alvo.vetorCor, cand.vetorCor) < 0.9) return;
-
             const score = cosseno(alvo.vetorBase, cand.vetorBase);
             if (score > 0.4) {
                 const extras = [], faltas = [], divergencias = [];
-                
-                // 1. Extras e Divergências (Candidato vs Alvo)
                 cand.aditivosMap.forEach((qtdC, nome) => {
-                    if (!alvo.aditivosMap.has(nome)) {
-                        extras.push({ nome, qtd: qtdC });
-                    } else {
+                    if (!alvo.aditivosMap.has(nome)) extras.push({ nome, qtd: qtdC });
+                    else {
                         const qtdA = alvo.aditivosMap.get(nome);
-                        if (Math.abs(qtdC - qtdA) > 0.01) {
-                            divergencias.push({ nome, diff: qtdC - qtdA, doseC: qtdC, doseA: qtdA });
-                        }
+                        if (Math.abs(qtdC - qtdA) > 0.01) divergencias.push({ nome, diff: qtdC - qtdA, doseC: qtdC, doseA: qtdA });
                     }
                 });
-
-                // 2. Faltas (Alvo vs Candidato)
-                alvo.aditivosMap.forEach((qtdA, nome) => {
-                    if (!cand.aditivosMap.has(nome)) faltas.push(nome);
-                });
-
+                alvo.aditivosMap.forEach((qtdA, nome) => { if (!cand.aditivosMap.has(nome)) faltas.push(nome); });
                 lista.push({ ...cand, score, extras, faltas, divergencias });
             }
         });
@@ -200,68 +231,47 @@
         const vetoContainer = document.getElementById('veto-chips');
         const listContainer = document.getElementById('results-list');
         vetoContainer.innerHTML = ''; listContainer.innerHTML = '';
-
         const extrasCount = new Map();
         const visiveis = CURRENT_RESULTS.filter(c => {
             const bloqueado = c.extras.some(e => ACTIVE_VETOS.has(e.nome));
             if (!bloqueado) c.extras.forEach(e => extrasCount.set(e.nome, (extrasCount.get(e.nome) || 0) + 1));
             return !bloqueado;
         });
-
         extrasCount.forEach((count, nome) => {
             const btn = document.createElement('button');
-            btn.className = `text-[10px] px-2 py-1 rounded border border-slate-700 bg-slate-800 hover:border-sky-500 transition-all text-slate-400`;
-            btn.innerHTML = `VETAR ${nome.split(': ')[1]} <span class="text-sky-500 ml-1 font-bold">${count}</span>`;
+            btn.className = `text-[10px] px-3 py-1 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:border-sky-500 transition-colors`;
+            btn.innerHTML = `${nome.split(': ')[1]} <span class="text-sky-500 ml-1 font-bold">${count}</span>`;
             btn.onclick = () => { ACTIVE_VETOS.add(nome); atualizarUI(); };
             vetoContainer.appendChild(btn);
         });
-
         visiveis.slice(0, 20).forEach(c => {
             const card = document.createElement('div');
-            card.className = "bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl";
-            
+            card.className = "bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-2xl shadow-xl";
             let auditHtml = '';
-            const isIdentico = c.extras.length === 0 && c.faltas.length === 0 && c.divergencias.length === 0;
-
-            if (isIdentico) {
-                auditHtml = `<div class="audit-box audit-identico p-3 rounded-lg text-xs font-semibold mb-4">✓ ESTRUTURA E DOSAGENS IDÊNTICAS</div>`;
+            if (c.extras.length === 0 && c.faltas.length === 0 && c.divergencias.length === 0) {
+                auditHtml = `<div class="border-l-4 border-emerald-500 bg-emerald-500/5 p-3 rounded text-[11px] font-bold text-emerald-400 mb-4 uppercase tracking-wider">Dosagens Idênticas</div>`;
             } else {
-                auditHtml = `<div class="audit-box p-3 rounded-lg text-xs space-y-2 mb-4">`;
-                
-                if (c.divergencias.length > 0) {
-                    auditHtml += `<div class="audit-diff font-bold">⚙️ DIVERGÊNCIA DE DOSAGEM:</div>`;
-                    c.divergencias.forEach(d => {
-                        const sinal = d.diff > 0 ? '+' : '';
-                        auditHtml += `<div class="text-slate-300 ml-2">• ${d.nome}: <span class="text-sky-400 font-bold">${sinal}${d.diff.toFixed(2)}%</span> <span class="opacity-50">(Alvo: ${d.doseA}% → Esta: ${d.doseC}%)</span></div>`;
-                    });
-                }
-                if (c.extras.length > 0) {
-                    auditHtml += `<div class="audit-extra font-bold mt-2">⚠️ MATERIAIS EXTRAS:</div>`;
-                    c.extras.forEach(e => auditHtml += `<div class="text-slate-300 ml-2">• ${e.nome} (${e.qtd.toFixed(2)}%)</div>`);
-                }
-                if (c.faltas.length > 0) {
-                    auditHtml += `<div class="audit-falta font-bold mt-2">🔻 MATERIAIS FALTANTES:</div>`;
-                    c.faltas.forEach(f => auditHtml += `<div class="text-slate-300 ml-2">• ${f}</div>`);
-                }
+                auditHtml = `<div class="border-l-4 border-slate-700 bg-black/20 p-3 rounded text-[11px] space-y-1.5 mb-4">`;
+                c.divergencias.forEach(d => auditHtml += `<div class="text-sky-400">• ${d.nome}: <span class="font-bold">${d.diff > 0 ? '+' : ''}${d.diff.toFixed(2)}%</span> <span class="opacity-40 text-[10px]">(${d.doseA}% → ${d.doseC}%)</span></div>`);
+                c.extras.forEach(e => auditHtml += `<div class="text-amber-400">• EXTRA: ${e.nome} (${e.qtd.toFixed(2)}%)</div>`);
+                c.faltas.forEach(f => auditHtml += `<div class="text-red-400">• FALTA: ${f}</div>`);
                 auditHtml += `</div>`;
             }
-
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="font-bold text-white text-xl">${c.nome}</h3>
-                        <span class="text-[10px] mono text-slate-500 bg-slate-950 px-2 py-0.5 rounded">ID: ${c.id}</span>
+                    <div class="flex-1 pr-4">
+                        <h3 class="font-bold text-white text-base md:text-lg leading-tight">${c.nome}</h3>
+                        <span class="text-[10px] mono text-slate-500">ID: ${c.id}</span>
                     </div>
-                    <div class="text-right">
-                        <div class="text-4xl font-black text-sky-500 tracking-tighter">${(c.score * 100).toFixed(1)}%</div>
-                        <div class="text-[8px] uppercase text-slate-500 font-bold tracking-widest">Similaridade Resina</div>
+                    <div class="text-right shrink-0">
+                        <div class="text-3xl md:text-4xl font-black text-sky-500 tracking-tighter">${(c.score * 100).toFixed(1)}%</div>
+                        <div class="text-[8px] uppercase text-slate-500 font-bold tracking-widest">Similaridade</div>
                     </div>
                 </div>
                 ${auditHtml}
                 <details class="group/det">
-                    <summary class="text-xs text-slate-400 cursor-pointer hover:text-white flex items-center gap-2 font-semibold uppercase tracking-wider">
-                        <span class="w-4 h-4 bg-slate-800 rounded flex items-center justify-center text-[8px] group-open/det:rotate-90 transition-transform">▶</span>
-                        Ver Estrutura Técnica
+                    <summary class="text-[10px] text-slate-400 cursor-pointer hover:text-white flex items-center gap-2 font-bold uppercase tracking-widest">
+                        <span>▶ Ver Estrutura Técnica</span>
                     </summary>
                     <div class="mt-4 border-t border-slate-800 pt-4">${renderEstrutura(c.itens)}</div>
                 </details>
@@ -274,21 +284,21 @@
         const prods = PRODUTOS_DB[alvo.id] || [];
         document.getElementById('target-prod-count').textContent = `${prods.length} ITENS`;
         document.getElementById('target-area').innerHTML = `
-            <div class="mb-8 p-4 rounded-2xl bg-slate-800/30 border border-sky-500/20">
-                <h2 class="font-bold text-white text-2xl leading-tight">${alvo.nome}</h2>
-                <div class="text-xs mono text-sky-500 mt-2 font-bold">ID: ${alvo.id}</div>
+            <div class="mb-6 p-4 rounded-xl bg-slate-800/40 border border-sky-500/30 shadow-inner">
+                <h2 class="font-bold text-white text-lg leading-tight">${alvo.nome}</h2>
+                <div class="text-[10px] mono text-sky-500 mt-1 font-bold">ID: ${alvo.id}</div>
             </div>
-            <div class="mb-8">
-                <div class="text-[10px] font-bold text-slate-500 uppercase mb-4 border-b border-slate-800 pb-2 tracking-widest">Estrutura de Resinas</div>
-                <div class="space-y-5">${renderEstrutura(alvo.itens)}</div>
+            <div class="mb-6">
+                <div class="text-[10px] font-bold text-slate-500 uppercase mb-3 border-b border-slate-800 pb-1 tracking-widest">Estrutura de Resinas</div>
+                <div class="space-y-4">${renderEstrutura(alvo.itens)}</div>
             </div>
             <details class="group/port">
-                <summary class="text-[10px] font-bold text-slate-500 uppercase mb-4 border-b border-slate-800 pb-2 tracking-widest cursor-pointer hover:text-sky-400 flex justify-between items-center">
+                <summary class="text-[10px] font-bold text-slate-500 uppercase mb-3 border-b border-slate-800 pb-1 cursor-pointer hover:text-sky-400 flex justify-between items-center">
                     <span>Produtos Vinculados</span>
                     <span class="text-[8px] group-open/port:rotate-90 transition-transform">▶</span>
                 </summary>
-                <div class="space-y-2 max-h-72 overflow-y-auto custom-scroll pr-2">
-                    ${prods.length ? prods.map(p => `<div class="text-[10px] p-3 rounded-xl bg-sky-500/5 border border-sky-500/10 text-sky-200 mb-1 leading-relaxed">${p}</div>`).join('') : '<div class="text-xs text-slate-600 italic">Nenhum produto vinculado.</div>'}
+                <div class="space-y-1 max-h-60 overflow-y-auto custom-scroll pr-1">
+                    ${prods.length ? prods.map(p => `<div class="text-[10px] p-2 rounded bg-sky-500/5 text-sky-200 mb-1 leading-tight border border-sky-500/10">${p}</div>`).join('') : '<div class="text-[10px] text-slate-600 italic">Sem vínculos.</div>'}
                 </div>
             </details>
         `;
@@ -301,7 +311,7 @@
             acc[i.rosca].h.push(`<div class="flex justify-between text-[10px] py-2 border-b border-white/5"><span class="truncate ${cor} opacity-90 font-medium">${i.desc}</span><span class="mono ml-2 text-slate-400 font-bold">${i.qtd.toFixed(2)}%</span></div>`);
             return acc;
         }, {});
-        return Object.keys(grupos).sort().map(r => `<div class="mb-4"><div class="flex justify-between text-[9px] font-bold text-slate-500 uppercase mb-2 tracking-tighter"><span>${r}</span><span class="bg-slate-800 px-2 rounded">${grupos[r].p}%</span></div>${grupos[r].h.join('')}</div>`).join('');
+        return Object.keys(grupos).sort().map(r => `<div class="mb-4"><div class="flex justify-between text-[9px] font-bold text-slate-500 uppercase mb-1"><span>${r}</span><span class="bg-slate-800 px-1.5 rounded text-slate-400">${grupos[r].p}%</span></div>${grupos[r].h.join('')}</div>`).join('');
     }
 
     function resetVetos() { ACTIVE_VETOS.clear(); atualizarUI(); }
