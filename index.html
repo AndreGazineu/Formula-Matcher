@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formula Matcher</title>
+    <title>Formula Matcher | Precision</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
@@ -14,14 +14,13 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         details summary::-webkit-details-marker { display: none; }
         
-        /* Tooltip Ajustado */
         .tooltip-container { position: relative; display: inline-flex; align-items: center; }
         .tooltip-text { 
-            visibility: hidden; width: 220px; background-color: #1e293b; color: #fff; 
+            visibility: hidden; width: 200px; background-color: #1e293b; color: #fff; 
             text-align: left; border-radius: 8px; padding: 12px; position: absolute; 
-            z-index: 50; top: 150%; left: 50%; transform: translateX(-50%); opacity: 0; 
-            transition: opacity 0.2s; border: 1px solid #334155; font-size: 12px; line-height: 1.4;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+            z-index: 50; top: 140%; left: 50%; transform: translateX(-50%); opacity: 0; 
+            transition: opacity 0.2s; border: 1px solid #334155; font-size: 11px; line-height: 1.4;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); pointer-events: none;
         }
         .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
@@ -30,42 +29,53 @@
 
     <!-- HEADER -->
     <header class="bg-slate-900 border-b border-slate-700 p-4 shrink-0 z-20 shadow-xl">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6">
+        <div class="max-w-full mx-auto flex flex-col xl:flex-row items-center gap-6">
             <h1 class="text-2xl font-bold text-sky-400 tracking-tight shrink-0">Formula<span class="text-white">Matcher</span></h1>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                <!-- BUSCA POR ID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
+                <!-- 1. ANALISAR SIMILARIDADE -->
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2 mb-1 ml-1">
-                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">ID Fórmula</label>
+                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Análise Técnica</label>
                         <div class="tooltip-container">
                             <span class="text-[10px] bg-slate-700 text-slate-300 rounded-full w-4 h-4 flex items-center justify-center cursor-help font-bold">?</span>
-                            <div class="tooltip-text">
-                                <b class="text-sky-400">Analisar:</b> Digite o ID técnico da composição para encontrar outras fórmulas que possuam a mesma base de resinas.
-                            </div>
+                            <div class="tooltip-text">Busca fórmulas com estruturas de resinas similares, respeitando as quantidades em cada rosca (A, B, C).</div>
                         </div>
                     </div>
                     <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 focus-within:border-sky-500 transition-colors">
-                        <input type="text" id="targetId" placeholder="Ex: 466" class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
-                        <button onclick="buscarPorId()" class="bg-sky-600 hover:bg-sky-500 px-5 py-2 rounded-md text-xs font-bold transition-all">Analisar</button>
+                        <input type="text" id="targetId" inputmode="numeric" placeholder="ID Composição..." class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
+                        <button onclick="buscarPorId()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-md text-xs font-bold transition-all">Analisar</button>
                     </div>
                 </div>
 
-                <!-- BUSCA POR PRODUTO -->
+                <!-- 2. LOCALIZAR POR PRODUTO -->
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2 mb-1 ml-1">
                         <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Localizar Produto</label>
                         <div class="tooltip-container">
                             <span class="text-[10px] bg-slate-700 text-slate-300 rounded-full w-4 h-4 flex items-center justify-center cursor-help font-bold">?</span>
-                            <div class="tooltip-text">
-                                <b class="text-emerald-400">Localizar:</b> Digite o nome ou código do produto final. O sistema identificará qual fórmula ele usa e iniciará a análise.
-                            </div>
+                            <div class="tooltip-text">Encontra qual fórmula um produto específico utiliza e inicia a análise técnica.</div>
                         </div>
                     </div>
                     <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 focus-within:border-emerald-500 transition-colors">
-                        <input type="text" id="productSearch" list="productList" placeholder="Digite código ou nome..." class="bg-transparent px-3 py-2 text-sm outline-none w-full text-white">
+                        <input type="text" id="productSearch" list="productList" placeholder="Nome ou código..." class="bg-transparent px-3 py-2 text-sm outline-none w-full text-white">
                         <datalist id="productList"></datalist>
-                        <button onclick="buscarPorProduto()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-md text-xs font-bold transition-all">Localizar</button>
+                        <button onclick="buscarPorProduto()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-md text-xs font-bold transition-all">Localizar</button>
+                    </div>
+                </div>
+
+                <!-- 3. LISTAR PORTFÓLIO -->
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2 mb-1 ml-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Consultar Portfólio</label>
+                        <div class="tooltip-container">
+                            <span class="text-[10px] bg-slate-700 text-slate-300 rounded-full w-4 h-4 flex items-center justify-center cursor-help font-bold">?</span>
+                            <div class="tooltip-text">Lista todos os produtos vinculados a um ID de composição sem realizar análise de similaridade.</div>
+                        </div>
+                    </div>
+                    <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 focus-within:border-amber-500 transition-colors">
+                        <input type="text" id="portfolioId" inputmode="numeric" placeholder="ID Composição..." class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
+                        <button onclick="listarPortfolio()" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-md text-xs font-bold transition-all">Listar</button>
                     </div>
                 </div>
             </div>
@@ -74,19 +84,18 @@
 
     <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
         <!-- SIDEBAR (ALVO) -->
-        <aside class="w-full lg:w-96 bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-700 flex flex-col shrink-0 shadow-2xl z-10 overflow-y-auto lg:overflow-hidden">
+        <aside id="sidebar-alvo" class="w-full lg:w-96 bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-700 flex flex-col shrink-0 shadow-2xl z-10 overflow-y-auto lg:overflow-hidden">
             <div class="p-4 border-b border-slate-700 text-[10px] font-bold text-slate-500 uppercase flex justify-between items-center sticky top-0 bg-slate-900">
                 <span>Referência Técnica</span>
                 <span id="target-prod-count" class="text-sky-500 font-mono"></span>
             </div>
             <div id="target-area" class="flex-1 lg:overflow-y-auto p-5 custom-scroll">
-                <div class="text-center mt-10 text-slate-600 text-sm italic">Aguardando definição de alvo...</div>
+                <div class="text-center mt-10 lg:mt-32 text-slate-600 text-sm italic">Aguardando entrada...</div>
             </div>
         </aside>
 
         <!-- CONTEÚDO (RESULTADOS) -->
-        <section class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
-            <!-- VETOS -->
+        <section id="results-section" class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
             <div id="veto-panel" class="hidden p-4 bg-slate-900/80 backdrop-blur border-b border-slate-800">
                 <div class="flex justify-between items-center mb-3">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ocultar materiais extras:</span>
@@ -95,7 +104,6 @@
                 <div id="veto-chips" class="flex flex-wrap gap-2"></div>
             </div>
 
-            <!-- LISTA -->
             <div id="results-area" class="flex-1 overflow-y-auto p-4 md:p-8 custom-scroll">
                 <div id="results-list" class="max-w-4xl mx-auto space-y-6"></div>
             </div>
@@ -126,7 +134,7 @@
                         }
                         else if (/^\d+\/\d+\s*-/.test(text) && currentCompID) {
                             PRODUTOS_DB[currentCompID].push(text);
-                            REVERSE_PROD_MAP[text] = currentCompID;
+                            REVERSE_PROD_MAP[text.toUpperCase()] = currentCompID;
                             const option = document.createElement('option'); option.value = text; document.getElementById('productList').appendChild(option);
                         }
                     });
@@ -144,13 +152,20 @@
             const id = String(row.ID_Composicao).trim().replace(/^0+/, '');
             if (!id) return;
             if (!DB[id]) DB[id] = { id, nome: row.Nome_Composicao, vetorBase: {}, vetorCor: {}, aditivosMap: new Map(), itens: [] };
+            
             const desc = String(row.Descricao_Material).toUpperCase().replace(/"/g, '');
             const tipo = desc.startsWith('PIG.') ? 'PIG' : (desc.startsWith('ADIT.') ? 'ADIT' : 'BASE');
-            const chave = `${row.Grupo_Rosca}_${row.Cod_Material}`;
+            
+            // CHAVE DE PRECISÃO: Rosca + Código do Material
+            const chaveVetor = `${row.Grupo_Rosca}_${row.Cod_Material}`;
+            
             const qtdF = row.Qtd_Corrigida_No_Filme || 0;
             const qtdR = row.Qtd_Original_Na_Rosca || 0;
-            if (tipo === 'BASE') DB[id].vetorBase[chave] = (DB[id].vetorBase[chave] || 0) + qtdF;
-            if (tipo === 'PIG') DB[id].vetorCor[chave] = (DB[id].vetorCor[chave] || 0) + qtdF;
+
+            // Similaridade de Resina agora considera a Rosca específica
+            if (tipo === 'BASE') DB[id].vetorBase[chaveVetor] = (DB[id].vetorBase[chaveVetor] || 0) + qtdF;
+            if (tipo === 'PIG') DB[id].vetorCor[chaveVetor] = (DB[id].vetorCor[chaveVetor] || 0) + qtdF;
+            
             if (tipo !== 'BASE') {
                 const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
                 DB[id].aditivosMap.set(`${row.Grupo_Rosca}: ${nomeLimpo}`, qtdR);
@@ -167,30 +182,35 @@
     function buscarPorProduto() {
         const input = document.getElementById('productSearch').value.trim().toUpperCase();
         if (!input) return;
-
-        // 1. Tenta busca exata
         let id = REVERSE_PROD_MAP[input];
-
-        // 2. Se não achar, tenta busca parcial (fuzzy)
         if (!id) {
-            const keys = Object.keys(REVERSE_PROD_MAP);
-            const foundKey = keys.find(k => k.toUpperCase().includes(input));
-            if (foundKey) {
-                id = REVERSE_PROD_MAP[foundKey];
-                document.getElementById('productSearch').value = foundKey; // Atualiza o input com o nome completo
-            }
+            const foundKey = Object.keys(REVERSE_PROD_MAP).find(k => k.includes(input));
+            if (foundKey) { id = REVERSE_PROD_MAP[foundKey]; document.getElementById('productSearch').value = foundKey; }
         }
+        if (id) { document.getElementById('targetId').value = id; executarAnalise(id); }
+        else alert("Produto não localizado.");
+    }
 
-        if (id) {
-            document.getElementById('targetId').value = id;
-            executarAnalise(id);
-        } else {
-            alert("Produto não encontrado no relatório ERP.");
-        }
+    function listarPortfolio() {
+        const id = document.getElementById('portfolioId').value.trim().replace(/^0+/, '');
+        if (!PRODUTOS_DB[id]) return alert("Nenhum produto vinculado a este ID no ERP.");
+        
+        const listContainer = document.getElementById('results-list');
+        document.getElementById('empty-msg')?.remove();
+        document.getElementById('veto-panel').classList.add('hidden');
+        listContainer.innerHTML = `
+            <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-2xl mb-6">
+                <h3 class="text-amber-400 font-bold uppercase text-xs tracking-widest mb-4">Portfólio Vinculado ao ID ${id}</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    ${PRODUTOS_DB[id].map(p => `<div class="text-sm text-slate-300 bg-slate-900/50 p-3 rounded-lg border border-white/5">${p}</div>`).join('')}
+                </div>
+            </div>
+        `;
+        if (window.innerWidth < 1024) document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
     }
 
     function executarAnalise(id) {
-        if (!DB[id]) return alert("ID de composição não localizado.");
+        if (!DB[id]) return alert("ID não encontrado.");
         const alvo = DB[id];
         renderAlvo(alvo);
         ACTIVE_VETOS.clear();
@@ -202,7 +222,10 @@
             const candCor = Object.keys(cand.vetorCor).length > 0;
             if (alvoCor !== candCor) return;
             if (alvoCor && cosseno(alvo.vetorCor, cand.vetorCor) < 0.9) return;
+            
+            // Similaridade agora é Rosca-Material-Percentual
             const score = cosseno(alvo.vetorBase, cand.vetorBase);
+            
             if (score > 0.4) {
                 const extras = [], faltas = [], divergencias = [];
                 cand.aditivosMap.forEach((qtdC, nome) => {
@@ -218,6 +241,7 @@
         });
         CURRENT_RESULTS = lista.sort((a, b) => b.score - a.score);
         atualizarUI();
+        if (window.innerWidth < 1024) document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
     }
 
     function cosseno(v1, v2) {
@@ -239,7 +263,7 @@
         });
         extrasCount.forEach((count, nome) => {
             const btn = document.createElement('button');
-            btn.className = `text-[10px] px-3 py-1 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:border-sky-500 transition-colors`;
+            btn.className = `text-[9px] px-3 py-1 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:border-sky-500 transition-colors`;
             btn.innerHTML = `${nome.split(': ')[1]} <span class="text-sky-500 ml-1 font-bold">${count}</span>`;
             btn.onclick = () => { ACTIVE_VETOS.add(nome); atualizarUI(); };
             vetoContainer.appendChild(btn);
@@ -249,10 +273,10 @@
             card.className = "bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-2xl shadow-xl";
             let auditHtml = '';
             if (c.extras.length === 0 && c.faltas.length === 0 && c.divergencias.length === 0) {
-                auditHtml = `<div class="border-l-4 border-emerald-500 bg-emerald-500/5 p-3 rounded text-[11px] font-bold text-emerald-400 mb-4 uppercase tracking-wider">Dosagens Idênticas</div>`;
+                auditHtml = `<div class="border-l-4 border-emerald-500 bg-emerald-500/5 p-3 rounded text-[10px] font-bold text-emerald-400 mb-4 uppercase tracking-wider">Dosagens Idênticas</div>`;
             } else {
-                auditHtml = `<div class="border-l-4 border-slate-700 bg-black/20 p-3 rounded text-[11px] space-y-1.5 mb-4">`;
-                c.divergencias.forEach(d => auditHtml += `<div class="text-sky-400">• ${d.nome}: <span class="font-bold">${d.diff > 0 ? '+' : ''}${d.diff.toFixed(2)}%</span> <span class="opacity-40 text-[10px]">(${d.doseA}% → ${d.doseC}%)</span></div>`);
+                auditHtml = `<div class="border-l-4 border-slate-700 bg-black/20 p-3 rounded text-[10px] space-y-1.5 mb-4">`;
+                c.divergencias.forEach(d => auditHtml += `<div class="text-sky-400">• ${d.nome}: <span class="font-bold">${d.diff > 0 ? '+' : ''}${d.diff.toFixed(2)}%</span> <span class="opacity-40 text-[9px]">(${d.doseA}% → ${d.doseC}%)</span></div>`);
                 c.extras.forEach(e => auditHtml += `<div class="text-amber-400">• EXTRA: ${e.nome} (${e.qtd.toFixed(2)}%)</div>`);
                 c.faltas.forEach(f => auditHtml += `<div class="text-red-400">• FALTA: ${f}</div>`);
                 auditHtml += `</div>`;
@@ -265,7 +289,7 @@
                     </div>
                     <div class="text-right shrink-0">
                         <div class="text-3xl md:text-4xl font-black text-sky-500 tracking-tighter">${(c.score * 100).toFixed(1)}%</div>
-                        <div class="text-[8px] uppercase text-slate-500 font-bold tracking-widest">Similaridade</div>
+                        <div class="text-[7px] uppercase text-slate-500 font-bold">Similaridade</div>
                     </div>
                 </div>
                 ${auditHtml}
