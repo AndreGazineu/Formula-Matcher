@@ -3,180 +3,665 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formula Matcher | Precision</title>
+    <title>Polymer Lab Pro | Ultimate Integrated Suite V12</title>
+    
+    <!-- 
+        FRAMEWORKS E BIBLIOTECAS 
+        - Tailwind CSS: Estilização utilitária de alta performance
+        - PapaParse: Processamento de CSVs pesados no lado do cliente
+        - Google Fonts: Inter para UI e JetBrains Mono para dados técnicos
+    -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        details summary::-webkit-details-marker { display: none; }
-        
-        .tooltip-container { position: relative; display: inline-flex; align-items: center; }
-        .tooltip-text { 
-            visibility: hidden; width: 200px; background-color: #1e293b; color: #fff; 
-            text-align: left; border-radius: 8px; padding: 12px; position: absolute; 
-            z-index: 50; top: 140%; left: 50%; transform: translateX(-50%); opacity: 0; 
-            transition: opacity 0.2s; border: 1px solid #334155; font-size: 11px; line-height: 1.4;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); pointer-events: none;
+        /* 
+            SISTEMA DE CORES E VARIÁVEIS 
+            Definição de paleta baseada em design industrial moderno (Slate & Sky)
+        */
+        :root {
+            --bg-main: #0b1120;
+            --bg-card: #1e293b;
+            --sky-primary: #0ea5e9;
+            --emerald-primary: #10b981;
+            --amber-primary: #f59e0b;
+            --rose-primary: #f43f5e;
+            --slate-border: #334155;
+            --glass-bg: rgba(15, 23, 42, 0.8);
         }
-        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: #f1f5f9;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* 
+            CUSTOM SCROLLBAR 
+            Melhoria visual para containers de dados longos
+        */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0b1120; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* 
+            COMPONENTES DE UI 
+        */
+        .card { 
+            background: var(--bg-card); 
+            border: 1px solid var(--slate-border); 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); 
+            border-radius: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover { border-color: #475569; }
+
+        .active-rosca { 
+            border-color: var(--sky-primary) !important; 
+            background: #1e293b; 
+            box-shadow: 0 0 25px rgba(14, 165, 233, 0.2); 
+        }
+
+        .tab-btn { 
+            position: relative; 
+            transition: all 0.3s ease; 
+            cursor: pointer; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            font-size: 0.7rem; 
+            letter-spacing: 0.15em;
+            color: #64748b;
+            padding: 0.5rem 0;
+        }
+
+        .tab-btn.active { color: var(--sky-primary); }
+        .tab-btn.active::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -12px; 
+            left: 0; 
+            width: 100%; 
+            height: 3px; 
+            background: var(--sky-primary); 
+            border-radius: 10px; 
+            box-shadow: 0 0 10px var(--sky-primary);
+        }
+
+        /* 
+            INPUTS E FORMULÁRIOS 
+        */
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        input:focus { outline: none; border-color: var(--sky-primary) !important; }
+
+        .ppm-input {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--slate-border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            width: 75px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--emerald-primary);
+            font-weight: 800;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .ppm-input:focus { border-color: var(--emerald-primary); box-shadow: 0 0 8px rgba(16, 185, 129, 0.2); }
+
+        /* 
+            TOOLTIPS (RESTAURADO V1)
+        */
+        .tooltip { position: relative; cursor: help; }
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 10px;
+            white-space: normal;
+            width: 180px;
+            z-index: 100;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* 
+            ANIMAÇÕES (RESTAURADO V1)
+        */
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
+        }
+        .animate-pulse-subtle { animation: pulse-subtle 3s infinite ease-in-out; }
+
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in { animation: slide-in 0.4s ease-out forwards; }
+
+        /* 
+            GLASSMORPHISM 
+        */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        details summary::-webkit-details-marker { display: none; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden">
+<body>
 
-    <!-- HEADER -->
-    <header class="bg-slate-900 border-b border-slate-700 p-4 shrink-0 z-20 shadow-xl">
-        <div class="max-w-full mx-auto flex flex-col xl:flex-row items-center gap-6">
-            <h1 class="text-2xl font-bold text-sky-400 tracking-tight shrink-0">Formula<span class="text-white">Matcher</span></h1>
+    <!-- 
+        HEADER PRINCIPAL 
+        Contém controles globais e indicadores de status do banco de dados
+    -->
+    <header class="bg-slate-900 border-b border-slate-700 p-3 shadow-2xl z-50 shrink-0">
+        <div class="max-w-full mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-sky-900/20">P</div>
+                    <div>
+                        <h1 class="text-xl font-black text-sky-400 tracking-tighter uppercase leading-none">Polymer<span class="text-white">Lab</span> <span class="text-sky-600">PRO</span></h1>
+                        <span class="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase">Ultimate Integrated Suite V12.0</span>
+                    </div>
+                </div>
+                
+                <nav class="flex gap-8">
+                    <button onclick="switchTab('matcher')" id="btn-matcher" class="tab-btn active">🔍 Matcher Analysis</button>
+                    <button onclick="switchTab('simulator')" id="btn-simulator" class="tab-btn">🧪 Physical Simulator</button>
+                </nav>
+            </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
-                <!-- 1. ANALISAR SIMILARIDADE -->
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-2 mb-1 ml-1">
-                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Análise Técnica</label>
-                        <div class="tooltip-container">
-                            <span class="text-[10px] bg-slate-700 text-slate-300 rounded-full w-4 h-4 flex items-center justify-center cursor-help font-bold">?</span>
-                            <div class="tooltip-text">Busca fórmulas com estruturas de resinas similares, respeitando as quantidades em cada rosca (A, B, C).</div>
-                        </div>
-                    </div>
-                    <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 focus-within:border-sky-500 transition-colors">
-                        <input type="text" id="targetId" inputmode="numeric" placeholder="ID Composição..." class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
-                        <button onclick="buscarPorId()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-md text-xs font-bold transition-all">Analisar</button>
+            <div class="flex items-center gap-6 bg-slate-950/50 p-2 px-4 rounded-xl border border-slate-800">
+                <div class="flex flex-col items-end">
+                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Espessura Global</span>
+                    <div class="flex items-baseline gap-1">
+                        <input type="number" id="globalMicra" value="40" oninput="calculateAll()" class="bg-transparent text-right w-14 text-sky-400 font-black mono text-xl outline-none border-b border-slate-700 focus:border-sky-500">
+                        <span class="text-xs font-bold text-slate-400">µm</span>
                     </div>
                 </div>
-
-                <!-- 2. LOCALIZAR POR PRODUTO -->
+                <div class="h-10 w-px bg-slate-800"></div>
                 <div class="flex flex-col">
-                    <div class="flex items-center gap-2 mb-1 ml-1">
-                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Localizar Produto</label>
-                        <div class="tooltip-container">
-                            <span class="text-[10px] bg-slate-700 text-slate-300 rounded-full w-4 h-4 flex items-center justify-center cursor-help font-bold">?</span>
-                            <div class="tooltip-text">Encontra qual fórmula um produto específico utiliza e inicia a análise técnica.</div>
-                        </div>
+                    <div class="flex items-center gap-2">
+                        <div id="db-indicator" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                        <span id="db-status" class="text-[10px] text-amber-500 font-black uppercase">Syncing DB...</span>
                     </div>
-                    <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 focus-within:border-emerald-500 transition-colors">
-                        <input type="text" id="productSearch" list="productList" placeholder="Nome ou código..." class="bg-transparent px-3 py-2 text-sm outline-none w-full text-white">
-                        <datalist id="productList"></datalist>
-                        <button onclick="buscarPorProduto()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-md text-xs font-bold transition-all">Localizar</button>
-                    </div>
-                </div>
-
-                <!-- 3. LISTAR PORTFÓLIO -->
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-2 mb-1 ml-1">
-                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Consultar Portfólio</label>
-                        <div class="tooltip-container">
-                            <span class="text-[10px] bg-slate-700 text-slate-300 rounded-full w-4 h-4 flex items-center justify-center cursor-help font-bold">?</span>
-                            <div class="tooltip-text">Lista todos os produtos vinculados a um ID de composição sem realizar análise de similaridade.</div>
-                        </div>
-                    </div>
-                    <div class="flex bg-slate-800 rounded-lg p-1 border border-slate-600 focus-within:border-amber-500 transition-colors">
-                        <input type="text" id="portfolioId" inputmode="numeric" placeholder="ID Composição..." class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
-                        <button onclick="listarPortfolio()" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-md text-xs font-bold transition-all">Listar</button>
-                    </div>
+                    <span class="text-[9px] text-slate-600 uppercase font-bold">ASTM D1709 / D882</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        <!-- SIDEBAR (ALVO) -->
-        <aside id="sidebar-alvo" class="w-full lg:w-96 bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-700 flex flex-col shrink-0 shadow-2xl z-10 overflow-y-auto lg:overflow-hidden">
-            <div class="p-4 border-b border-slate-700 text-[10px] font-bold text-slate-500 uppercase flex justify-between items-center sticky top-0 bg-slate-900">
-                <span>Referência Técnica</span>
-                <span id="target-prod-count" class="text-sky-500 font-mono"></span>
-            </div>
-            <div id="target-area" class="flex-1 lg:overflow-y-auto p-5 custom-scroll">
-                <div class="text-center mt-10 lg:mt-32 text-slate-600 text-sm italic">Aguardando entrada...</div>
-            </div>
-        </aside>
+    <!-- CONTEÚDO DINÂMICO -->
+    <main class="flex-1 overflow-hidden relative">
+        
+        <!-- ABA 1: MATCHER (ANÁLISE DE SIMILARIDADE E PORTFÓLIO) -->
+        <section id="tab-matcher" class="absolute inset-0 flex flex-col lg:flex-row overflow-hidden transition-all duration-500">
+            
+            <!-- SIDEBAR DE BUSCA -->
+            <aside class="w-full lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 shadow-2xl z-10">
+                <div class="p-6 space-y-6 overflow-y-auto custom-scroll">
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-sky-500 uppercase tracking-[0.2em] mb-4">Análise Técnica</h3>
+                        
+                        <!-- Busca por ID -->
+                        <div class="group">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">ID da Composição</label>
+                            <div class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-sky-500 transition-all">
+                                <input type="text" id="targetId" placeholder="Ex: 469" class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
+                                <button onclick="buscarPorId()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Analisar</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Busca por Produto -->
+                        <div class="group">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">Localizar por Produto</label>
+                            <div class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-emerald-500 transition-all">
+                                <input type="text" id="productSearch" list="productList" placeholder="Nome ou código..." class="bg-transparent px-3 py-2 text-sm outline-none w-full text-white">
+                                <datalist id="productList"></datalist>
+                                <button onclick="buscarPorProduto()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Localizar</button>
+                            </div>
+                        </div>
 
-        <!-- CONTEÚDO (RESULTADOS) -->
-        <section id="results-section" class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
-            <div id="veto-panel" class="hidden p-4 bg-slate-900/80 backdrop-blur border-b border-slate-800">
-                <div class="flex justify-between items-center mb-3">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ocultar materiais extras:</span>
-                    <button onclick="resetVetos()" class="text-[10px] text-sky-400 underline">Limpar Filtros</button>
+                        <!-- Consulta de Portfólio (V2) -->
+                        <div class="group">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">Consultar Portfólio</label>
+                            <div class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-amber-500 transition-all">
+                                <input type="text" id="portfolioId" placeholder="ID Composição..." class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
+                                <button onclick="listarPortfolio()" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Listar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Área de Exibição do Alvo -->
+                    <div id="target-display-area" class="hidden space-y-4 animate-slide-in">
+                        <!-- Renderizado via JS -->
+                    </div>
+
+                    <div id="matcher-welcome" class="text-center py-20 opacity-30">
+                        <div class="text-5xl mb-4">🔍</div>
+                        <p class="text-xs font-bold uppercase tracking-widest leading-relaxed">Insira um ID ou Produto para<br>iniciar a análise de similaridade</p>
+                    </div>
                 </div>
-                <div id="veto-chips" class="flex flex-wrap gap-2"></div>
-            </div>
+            </aside>
 
-            <div id="results-area" class="flex-1 overflow-y-auto p-4 md:p-8 custom-scroll">
-                <div id="results-list" class="max-w-4xl mx-auto space-y-6"></div>
-            </div>
+            <!-- ÁREA DE RESULTADOS MATCHER -->
+            <section class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
+                <!-- Painel de Vetos (Filtros de Aditivos) -->
+                <div id="veto-panel" class="hidden p-4 bg-slate-900/50 border-b border-slate-800 flex items-center gap-4">
+                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest shrink-0">Ocultar Aditivos:</span>
+                    <div id="veto-chips" class="flex flex-wrap gap-2"></div>
+                    <button onclick="resetVetos()" class="text-[10px] text-sky-400 font-bold underline ml-auto hover:text-sky-300">Limpar Filtros</button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 custom-scroll">
+                    <div id="results-list" class="max-w-4xl mx-auto space-y-6">
+                        <!-- Cards de resultados renderizados aqui -->
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- ABA 2: SIMULADOR (PROPRIEDADES FÍSICAS COMPLETAS) -->
+        <section id="tab-simulator" class="absolute inset-0 hidden grid grid-cols-12 gap-4 p-4 overflow-hidden transition-all duration-500">
+            
+            <!-- COLUNA 1: BIBLIOTECA DE MATERIAIS -->
+            <aside class="col-span-3 flex flex-col gap-3 h-full overflow-hidden">
+                <div class="card p-4 flex flex-col h-full">
+                    <div class="mb-4">
+                        <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Resinas & Aditivos</h2>
+                        <div class="relative">
+                            <input type="text" id="searchMat" placeholder="Filtrar biblioteca..." oninput="renderMaterialList()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white outline-none focus:border-sky-500 transition-all">
+                            <div class="absolute right-3 top-3 text-slate-600">🔍</div>
+                        </div>
+                    </div>
+                    <div id="materialList" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scroll">
+                        <!-- Lista de materiais renderizada aqui -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- COLUNA 2: CONFIGURAÇÃO DE CAMADAS (ROSCAS) -->
+            <section class="col-span-5 flex flex-col gap-3 h-full overflow-hidden">
+                <div id="roscasContainer" class="flex-1 overflow-y-auto space-y-4 pr-2 custom-scroll pb-20">
+                    <!-- Camadas renderizadas aqui -->
+                </div>
+                <div class="shrink-0">
+                    <button onclick="addRosca()" class="w-full py-4 border-2 border-dashed border-slate-700 rounded-xl text-slate-500 hover:border-sky-500 hover:text-sky-500 hover:bg-sky-500/5 transition-all font-black text-xs uppercase tracking-[0.3em]">+ Adicionar Nova Camada</button>
+                </div>
+            </section>
+
+            <!-- COLUNA 3: DASHBOARD DE RESULTADOS (MECÂNICA COMPLETA) -->
+            <aside class="col-span-4 flex flex-col gap-4 h-full overflow-y-auto custom-scroll">
+                
+                <!-- CARD SUPERFÍCIE (COF / PPM) -->
+                <div class="card p-5 border-t-4 border-t-emerald-500 bg-gradient-to-br from-slate-900 to-slate-800">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-[11px] font-black text-white uppercase tracking-widest">Desempenho de Superfície</h2>
+                        <div class="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded">
+                            <span class="text-[9px] text-emerald-500 font-bold uppercase">Predictive COF</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-950/50 p-4 rounded-lg border border-slate-800">
+                            <span class="text-[9px] font-bold text-slate-500 uppercase block mb-1">PPM TOTAL (FILME)</span>
+                            <div class="flex items-baseline gap-2">
+                                <span id="resPpm" class="text-3xl font-black text-white mono">0</span>
+                                <span class="text-[10px] text-slate-600 font-bold">ppm</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-950/50 p-4 rounded-lg border border-slate-800">
+                            <span class="text-[9px] font-bold text-slate-500 uppercase block mb-1">COF ESTIMADO</span>
+                            <div id="resCof" class="text-2xl font-black text-emerald-400 mono">--</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-black/20 rounded border border-white/5">
+                        <div class="flex justify-between text-[10px] mb-1">
+                            <span class="text-slate-500 font-bold uppercase">Status de Deslizamento:</span>
+                            <span id="cof-status" class="text-white font-bold">--</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div id="barCof" class="bg-emerald-500 h-full transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD MECÂNICA (RESTAURADO ALONGAMENTO V1) -->
+                <div class="card p-5 border-t-4 border-t-sky-500">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-[11px] font-black text-white uppercase tracking-widest">Propriedades Mecânicas</h2>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] text-slate-500 uppercase font-bold">Densidade:</span>
+                            <span id="resDensity" class="text-xs font-black text-sky-400 mono">--</span>
+                        </div>
+                    </div>
+
+                    <!-- DARDO -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resistência ao Impacto (Dardo)</span>
+                            <span id="resDart" class="text-3xl font-black text-white mono">--</span>
+                        </div>
+                        <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+                            <div id="barDart" class="bg-gradient-to-r from-sky-600 to-sky-400 h-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- TRAÇÃO, CARGA E ALONGAMENTO (RESTAURADO V1) -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <!-- Direção Máquina -->
+                        <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800">
+                            <div class="text-[9px] font-bold text-emerald-500 uppercase mb-2 border-b border-emerald-500/20 pb-1">Direção Máquina (MD)</div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[9px] text-slate-500">Tensão:</span>
+                                    <span id="resTracMD" class="text-[11px] font-bold text-white mono">--</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[9px] text-slate-500">Alongamento:</span>
+                                    <span id="resElongMD" class="text-[11px] font-bold text-white mono">--</span>
+                                </div>
+                                <div class="pt-1 mt-1 border-t border-slate-800 flex justify-between items-center">
+                                    <span class="text-[9px] text-slate-400 font-bold">Carga:</span>
+                                    <span id="resLoadMD" class="text-xs font-black text-emerald-400 mono">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Direção Transversal -->
+                        <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800">
+                            <div class="text-[9px] font-bold text-amber-500 uppercase mb-2 border-b border-amber-500/20 pb-1">Direção Transv. (CD)</div>
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[9px] text-slate-500">Tensão:</span>
+                                    <span id="resTracCD" class="text-[11px] font-bold text-white mono">--</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[9px] text-slate-500">Alongamento:</span>
+                                    <span id="resElongCD" class="text-[11px] font-bold text-white mono">--</span>
+                                </div>
+                                <div class="pt-1 mt-1 border-t border-slate-800 flex justify-between items-center">
+                                    <span class="text-[9px] text-slate-400 font-bold">Carga:</span>
+                                    <span id="resLoadCD" class="text-xs font-black text-amber-400 mono">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FLUIDEZ -->
+                    <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fluidez Média (MFI)</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="resMFI" class="text-lg font-black text-white mono">--</span>
+                            <span class="text-[9px] text-slate-600 font-bold uppercase">g/10min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RESUMO DA BLENDA -->
+                <div class="card p-4 bg-slate-900/50">
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Distribuição de Polímeros</h3>
+                    <div id="blendaSummary" class="grid grid-cols-2 gap-y-2 gap-x-4 text-[10px]">
+                        <!-- Renderizado via JS -->
+                    </div>
+                </div>
+
+                <div id="alerts" class="space-y-2"></div>
+            </aside>
         </section>
     </main>
 
 <script>
+    /**
+     * =========================================================================
+     * 1. CONFIGURAÇÕES E BANCO DE DADOS TÉCNICO (RESIN_PROPS)
+     * =========================================================================
+     * O objeto RESIN_PROPS contém os parâmetros físicos médios de cada família
+     * de resina. Estes dados são usados para as simulações preditivas.
+     */
     const FORMULAS_URL = 'https://andregazineu.github.io/Formula-Matcher/database_limpo_final.csv';
     const PRODUTOS_URL = 'https://andregazineu.github.io/Formula-Matcher/RPCP372_produtos.csv';
-    
-    let DB = {};
-    let PRODUTOS_DB = {}; 
-    let REVERSE_PROD_MAP = {}; 
-    let CURRENT_RESULTS = [];
-    let ACTIVE_VETOS = new Set();
 
-    window.onload = () => {
-        Papa.parse(PRODUTOS_URL, {
-            download: true, header: true, skipEmptyLines: true, delimiter: ";",
-            complete: (resProd) => {
-                let currentCompID = null;
-                resProd.data.forEach(row => {
-                    const values = Object.values(row).map(v => String(v || "").trim()).filter(v => v);
-                    values.forEach(text => {
-                        if (/^\d+\s*-\s*/.test(text)) {
-                            currentCompID = text.match(/^(\d+)/)[1].replace(/^0+/, '');
-                            if (!PRODUTOS_DB[currentCompID]) PRODUTOS_DB[currentCompID] = [];
-                        }
-                        else if (/^\d+\/\d+\s*-/.test(text) && currentCompID) {
-                            PRODUTOS_DB[currentCompID].push(text);
-                            REVERSE_PROD_MAP[text.toUpperCase()] = currentCompID;
-                            const option = document.createElement('option'); option.value = text; document.getElementById('productList').appendChild(option);
-                        }
-                    });
-                });
-                Papa.parse(FORMULAS_URL, {
-                    download: true, header: true, dynamicTyping: true, skipEmptyLines: true, delimiter: ";",
-                    complete: (resForm) => processarFormulas(resForm.data)
-                });
-            }
-        });
+    const RESIN_PROPS = {
+        /* INSUMOS E ADITIVOS (EXPANDIDO V2) */
+        "PIG.": { dens: 1.97, mi: 25.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+        "DESLIZANTE 1%": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 250 },
+        "ANTI-BLOQUEIO": { dens: 0.98, mi: 3.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+        "ANTI-ESTATICO": { dens: 0.93, mi: 2.5, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+        "ANTI-OXIDANTE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+        "AUXILIAR DE FLUXO": { dens: 0.91, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+        "REPELENTE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+        "VCI": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+        "DESSECANTE": { dens: 1.20, mi: 5.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+        "ANTI-FIBRILANTE": { dens: 0.95, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+
+        /* METALOCÊNICOS (BRASKEM & EXXON) */
+        "PROXESS 1806 S3": { dens: 0.918, mi: 0.60, dart: 410, tracMD: 30, tracCD: 20, elongMD: 620, elongCD: 850, ppm: 800 },
+        "PROXESS 1809": { dens: 0.918, mi: 0.90, dart: 300, tracMD: 40, tracCD: 30, elongMD: 770, elongCD: 930, ppm: 0 },
+        "PROXESS 2806": { dens: 0.918, mi: 0.60, dart: 450, tracMD: 35, tracCD: 25, elongMD: 650, elongCD: 880, ppm: 0 },
+        "ENABLE 2005 ME": { dens: 0.920, mi: 0.50, dart: 378, tracMD: 60, tracCD: 55, elongMD: 480, elongCD: 710, ppm: 500 },
+        "ENABLE 3505": { dens: 0.935, mi: 0.50, dart: 126, tracMD: 60, tracCD: 50, elongMD: 550, elongCD: 810, ppm: 0 },
+        "ENABLE 4002MC": { dens: 0.940, mi: 0.25, dart: 95, tracMD: 70, tracCD: 60, elongMD: 490, elongCD: 810, ppm: 0 },
+        "FLEXUS 9211": { dens: 0.917, mi: 1.00, dart: 700, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
+        "FLEXUS 9212": { dens: 0.918, mi: 1.00, dart: 650, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 0 },
+        "FLEXUS 9511": { dens: 0.917, mi: 1.00, dart: 700, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 0 },
+        "EXCEED 1018 MK": { dens: 0.918, mi: 1.00, dart: 900, tracMD: 38, tracCD: 30, elongMD: 700, elongCD: 900, ppm: 1000 },
+        "EXCEED XP 7052": { dens: 0.912, mi: 0.50, dart: 1417, tracMD: 70, tracCD: 65, elongMD: 410, elongCD: 630, ppm: 0 },
+        "EXCEED 1327": { dens: 0.927, mi: 1.30, dart: 220, tracMD: 60, tracCD: 50, elongMD: 580, elongCD: 700, ppm: 0 },
+        "EXCEED 2012": { dens: 0.912, mi: 2.00, dart: 1086, tracMD: 65, tracCD: 60, elongMD: 560, elongCD: 610, ppm: 0 },
+
+        /* LINEARES (HF SERIES) */
+        "HF2208S3": { dens: 0.922, mi: 0.75, dart: 200, tracMD: 45, tracCD: 30, elongMD: 950, elongCD: 1150, ppm: 1200 },
+        "HF2007": { dens: 0.920, mi: 0.73, dart: 180, tracMD: 45, tracCD: 40, elongMD: 1260, elongCD: 1530, ppm: 0 },
+        "HF0131XP": { dens: 0.937, mi: 10.5, dart: 120, tracMD: 30, tracCD: 25, elongMD: 500, elongCD: 800, ppm: 0 },
+
+        /* PEBD / CONVENCIONAIS */
+        "EB 853/72": { dens: 0.923, mi: 2.70, dart: 80, tracMD: 25, tracCD: 20, elongMD: 350, elongCD: 1050, ppm: 800 },
+        "LF 720/21": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 1000 },
+        "TS9022": { dens: 0.931, mi: 2.20, dart: 100, tracMD: 20, tracCD: 15, elongMD: 350, elongCD: 950, ppm: 0 },
+        "TX7001": { dens: 0.922, mi: 0.14, dart: 131, tracMD: 25, tracCD: 25, elongMD: 350, elongCD: 940, ppm: 0 },
+        "TX7003": { dens: 0.922, mi: 0.27, dart: 131, tracMD: 20, tracCD: 20, elongMD: 380, elongCD: 910, ppm: 0 },
+
+        /* PEAD (ALTA DENSIDADE) */
+        "HE150": { dens: 0.948, mi: 1.00, dart: 40, tracMD: 40, tracCD: 30, elongMD: 300, elongCD: 400, ppm: 0 },
+        "GF4950": { dens: 0.956, mi: 0.36, dart: 30, tracMD: 30, tracCD: 25, elongMD: 100, elongCD: 200, ppm: 0 },
+
+        /* RECUPERADOS (DETALHADO V2) */
+        "REC BRANCO": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+        "REC CONVENCIONAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+        "REC VIPAL": { dens: 0.924, mi: 1.20, dart: 100, tracMD: 20, tracCD: 16, elongMD: 300, elongCD: 500, ppm: 400 },
+        "SACARIA": { dens: 0.922, mi: 1.00, dart: 110, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 400 },
+        "RAJADO": { dens: 0.926, mi: 1.80, dart: 80, tracMD: 16, tracCD: 12, elongMD: 200, elongCD: 350, ppm: 400 },
+        "INDUSTRIAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+        "VARREDURA": { dens: 0.928, mi: 2.00, dart: 70, tracMD: 15, tracCD: 10, elongMD: 150, elongCD: 300, ppm: 400 },
+
+        /* ESTIMADOS / ESPECIAIS */
+        "EF2126S3": { dens: 0.918, mi: 0.80, dart: 300, tracMD: 35, tracCD: 28, elongMD: 600, elongCD: 800, ppm: 800 },
+        "FEL PL 14": { dens: 0.930, mi: 2.00, dart: 120, tracMD: 28, tracCD: 22, elongMD: 400, elongCD: 700, ppm: 1000 },
+        "FEL020MA": { dens: 0.930, mi: 1.80, dart: 100, tracMD: 26, tracCD: 20, elongMD: 380, elongCD: 650, ppm: 800 },
+
+        /* FALLBACK */
+        "DEFAULT": { dens: 0.920, mi: 1.00, dart: 100, tracMD: 20, tracCD: 20, elongMD: 400, elongCD: 600, ppm: 0 }
     };
 
-    function processarFormulas(data) {
+    /**
+     * =========================================================================
+     * 2. ESTADO GLOBAL DA APLICAÇÃO
+     * =========================================================================
+     */
+    let DB = {}; 
+    let PRODUTOS_DB = {}; 
+    let REVERSE_PROD_MAP = {}; 
+    let ALL_MATERIALS_SET = new Set(); 
+    
+    let CURRENT_RESULTS = []; 
+    let ACTIVE_VETOS = new Set(); 
+    
+    let formula = [
+        { id: 1, name: "Rosca A (Ext)", share: 25, materials: [] },
+        { id: 2, name: "Rosca B (Meio)", share: 50, materials: [] },
+        { id: 3, name: "Rosca C (Int)", share: 25, materials: [] }
+    ];
+    let activeRoscaIdx = 0;
+
+    /**
+     * =========================================================================
+     * 3. INICIALIZAÇÃO E CARREGAMENTO DE DADOS
+     * =========================================================================
+     */
+    window.onload = async () => {
+        try {
+            // 1. Carregar Banco de Produtos (Nomes Comerciais)
+            Papa.parse(PRODUTOS_URL, {
+                download: true, header: true, skipEmptyLines: true, delimiter: ";",
+                complete: (resProd) => {
+                    let currentCompID = null;
+                    resProd.data.forEach(row => {
+                        const values = Object.values(row).map(v => String(v || "").trim()).filter(v => v);
+                        values.forEach(text => {
+                            if (/^\d+\s*-\s*/.test(text)) {
+                                currentCompID = text.match(/^(\d+)/)[1].replace(/^0+/, '');
+                                if (!PRODUTOS_DB[currentCompID]) PRODUTOS_DB[currentCompID] = [];
+                            }
+                            else if (/^\d+\/\d+\s*-/.test(text) && currentCompID) {
+                                PRODUTOS_DB[currentCompID].push(text);
+                                REVERSE_PROD_MAP[text.toUpperCase()] = currentCompID;
+                                const option = document.createElement('option');
+                                option.value = text;
+                                document.getElementById('productList').appendChild(option);
+                            }
+                        });
+                    });
+                    
+                    // 2. Carregar Banco de Fórmulas Técnicas
+                    Papa.parse(FORMULAS_URL, {
+                        download: true, header: true, dynamicTyping: true, skipEmptyLines: true, delimiter: ";",
+                        complete: (resForm) => {
+                            processarBancoFormulas(resForm.data);
+                            finalizarSetup();
+                        }
+                    });
+                }
+            });
+        } catch (e) {
+            console.error("Erro fatal no carregamento:", e);
+            document.getElementById('db-status').textContent = "Erro de Conexão";
+        }
+    };
+
+    function processarBancoFormulas(data) {
         data.forEach(row => {
             const id = String(row.ID_Composicao).trim().replace(/^0+/, '');
             if (!id) return;
-            if (!DB[id]) DB[id] = { id, nome: row.Nome_Composicao, vetorBase: {}, vetorCor: {}, aditivosMap: new Map(), itens: [] };
+
+            if (!DB[id]) {
+                DB[id] = { 
+                    id, 
+                    nome: row.Nome_Composicao, 
+                    vetorBase: {}, 
+                    vetorCor: {}, 
+                    aditivosMap: new Map(), 
+                    itens: [] 
+                };
+            }
             
-            const desc = String(row.Descricao_Material).toUpperCase().replace(/"/g, '');
+            const desc = String(row.Descricao_Material || "").toUpperCase().replace(/"/g, '').trim();
+            if (!desc || desc.includes('TUBETE')) return;
+            
+            ALL_MATERIALS_SET.add(desc);
+            
             const tipo = desc.startsWith('PIG.') ? 'PIG' : (desc.startsWith('ADIT.') ? 'ADIT' : 'BASE');
-            
-            // CHAVE DE PRECISÃO: Rosca + Código do Material
             const chaveVetor = `${row.Grupo_Rosca}_${row.Cod_Material}`;
-            
             const qtdF = row.Qtd_Corrigida_No_Filme || 0;
             const qtdR = row.Qtd_Original_Na_Rosca || 0;
 
-            // Similaridade de Resina agora considera a Rosca específica
+            // Vetores para cálculo de similaridade (Cosseno)
             if (tipo === 'BASE') DB[id].vetorBase[chaveVetor] = (DB[id].vetorBase[chaveVetor] || 0) + qtdF;
             if (tipo === 'PIG') DB[id].vetorCor[chaveVetor] = (DB[id].vetorCor[chaveVetor] || 0) + qtdF;
             
+            // Mapa de aditivos para auditoria de diferenças
             if (tipo !== 'BASE') {
                 const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
                 DB[id].aditivosMap.set(`${row.Grupo_Rosca}: ${nomeLimpo}`, qtdR);
             }
-            DB[id].itens.push({ desc, tipo, rosca: row.Grupo_Rosca, perc: row.Percentual_Rosca, qtd: qtdR });
+            
+            DB[id].itens.push({ 
+                desc, 
+                tipo, 
+                rosca: row.Grupo_Rosca, 
+                percRosca: row.Percentual_Rosca, 
+                qtd: qtdR 
+            });
         });
     }
 
-    function buscarPorId() { 
-        const id = document.getElementById('targetId').value.trim().replace(/^0+/, ''); 
-        executarAnalise(id); 
+    function finalizarSetup() {
+        const indicator = document.getElementById('db-indicator');
+        const status = document.getElementById('db-status');
+        indicator.classList.replace('bg-amber-500', 'bg-emerald-500');
+        indicator.classList.remove('animate-pulse');
+        status.textContent = "DB Online";
+        status.classList.replace('text-amber-500', 'text-emerald-500');
+        
+        renderMaterialList();
+        renderRoscas();
+        calculateAll();
+    }
+
+    /**
+     * =========================================================================
+     * 4. NAVEGAÇÃO E INTERFACE (UI)
+     * =========================================================================
+     */
+    function switchTab(tab) {
+        const tMatcher = document.getElementById('tab-matcher');
+        const tSimulator = document.getElementById('tab-simulator');
+        const bMatcher = document.getElementById('btn-matcher');
+        const bSimulator = document.getElementById('btn-simulator');
+
+        if (tab === 'matcher') {
+            tMatcher.classList.remove('hidden');
+            tSimulator.classList.add('hidden');
+            bMatcher.classList.add('active');
+            bSimulator.classList.remove('active');
+        } else {
+            tMatcher.classList.add('hidden');
+            tSimulator.classList.remove('hidden');
+            bSimulator.classList.add('active');
+            bMatcher.classList.remove('active');
+        }
+    }
+
+    /**
+     * =========================================================================
+     * 5. LÓGICA MATCHER (SIMILARIDADE E PORTFÓLIO)
+     * =========================================================================
+     */
+    function buscarPorId() {
+        const id = document.getElementById('targetId').value.trim().replace(/^0+/, '');
+        if (!DB[id]) return alert("ID não localizado no banco de dados.");
+        executarAnaliseSimilaridade(id);
     }
 
     function buscarPorProduto() {
@@ -185,160 +670,452 @@
         let id = REVERSE_PROD_MAP[input];
         if (!id) {
             const foundKey = Object.keys(REVERSE_PROD_MAP).find(k => k.includes(input));
-            if (foundKey) { id = REVERSE_PROD_MAP[foundKey]; document.getElementById('productSearch').value = foundKey; }
+            if (foundKey) id = REVERSE_PROD_MAP[foundKey];
         }
-        if (id) { document.getElementById('targetId').value = id; executarAnalise(id); }
-        else alert("Produto não localizado.");
+        if (id) {
+            document.getElementById('targetId').value = id;
+            executarAnaliseSimilaridade(id);
+        } else {
+            alert("Produto não localizado.");
+        }
     }
 
     function listarPortfolio() {
         const id = document.getElementById('portfolioId').value.trim().replace(/^0+/, '');
-        if (!PRODUTOS_DB[id]) return alert("Nenhum produto vinculado a este ID no ERP.");
+        if (!PRODUTOS_DB[id]) return alert("Nenhum produto vinculado a este ID.");
         
         const listContainer = document.getElementById('results-list');
-        document.getElementById('empty-msg')?.remove();
         document.getElementById('veto-panel').classList.add('hidden');
         listContainer.innerHTML = `
-            <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-2xl mb-6">
+            <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-2xl mb-6 animate-slide-in">
                 <h3 class="text-amber-400 font-bold uppercase text-xs tracking-widest mb-4">Portfólio Vinculado ao ID ${id}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                     ${PRODUTOS_DB[id].map(p => `<div class="text-sm text-slate-300 bg-slate-900/50 p-3 rounded-lg border border-white/5">${p}</div>`).join('')}
                 </div>
             </div>
         `;
-        if (window.innerWidth < 1024) document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
     }
 
-    function executarAnalise(id) {
-        if (!DB[id]) return alert("ID não encontrado.");
+    function executarAnaliseSimilaridade(id) {
         const alvo = DB[id];
-        renderAlvo(alvo);
-        ACTIVE_VETOS.clear();
+        renderAlvoNoMatcher(alvo);
+        document.getElementById('matcher-welcome').classList.add('hidden');
+        document.getElementById('target-display-area').classList.remove('hidden');
         document.getElementById('veto-panel').classList.remove('hidden');
-        const alvoCor = Object.keys(alvo.vetorCor).length > 0;
+        
+        ACTIVE_VETOS.clear();
+        
+        // Lógica de Cor (Restaurado V1): Se o alvo tem cor, filtramos candidatos sem cor
+        const alvoTemCor = Object.keys(alvo.vetorCor).length > 0;
+        
         const lista = [];
+
         Object.values(DB).forEach(cand => {
             if (cand.id === id) return;
-            const candCor = Object.keys(cand.vetorCor).length > 0;
-            if (alvoCor !== candCor) return;
-            if (alvoCor && cosseno(alvo.vetorCor, cand.vetorCor) < 0.9) return;
             
-            // Similaridade agora é Rosca-Material-Percentual
-            const score = cosseno(alvo.vetorBase, cand.vetorBase);
+            const candTemCor = Object.keys(cand.vetorCor).length > 0;
+            
+            // Filtro de Cor Inteligente (V1):
+            if (alvoTemCor !== candTemCor) return; // Se um tem cor e o outro não, ignora
+            if (alvoTemCor && calcularCosseno(alvo.vetorCor, cand.vetorCor) < 0.7) return; // Se ambos tem cor, devem ser similares
+
+            const score = calcularCosseno(alvo.vetorBase, cand.vetorBase);
             
             if (score > 0.4) {
                 const extras = [], faltas = [], divergencias = [];
+                
+                // Auditoria de Aditivos (V2)
                 cand.aditivosMap.forEach((qtdC, nome) => {
-                    if (!alvo.aditivosMap.has(nome)) extras.push({ nome, qtd: qtdC });
-                    else {
+                    if (!alvo.aditivosMap.has(nome)) {
+                        extras.push({ nome, qtd: qtdC });
+                    } else {
                         const qtdA = alvo.aditivosMap.get(nome);
-                        if (Math.abs(qtdC - qtdA) > 0.01) divergencias.push({ nome, diff: qtdC - qtdA, doseC: qtdC, doseA: qtdA });
+                        if (Math.abs(qtdC - qtdA) > 0.01) {
+                            divergencias.push({ nome, diff: qtdC - qtdA, doseC: qtdC, doseA: qtdA });
+                        }
                     }
                 });
-                alvo.aditivosMap.forEach((qtdA, nome) => { if (!cand.aditivosMap.has(nome)) faltas.push(nome); });
+
+                alvo.aditivosMap.forEach((_, nome) => {
+                    if (!cand.aditivosMap.has(nome)) faltas.push(nome);
+                });
+
                 lista.push({ ...cand, score, extras, faltas, divergencias });
             }
         });
+
         CURRENT_RESULTS = lista.sort((a, b) => b.score - a.score);
-        atualizarUI();
-        if (window.innerWidth < 1024) document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+        renderizarResultadosMatcher();
     }
 
-    function cosseno(v1, v2) {
+    function calcularCosseno(v1, v2) {
         let dot = 0, m1 = 0, m2 = 0;
         const keys = new Set([...Object.keys(v1), ...Object.keys(v2)]);
-        keys.forEach(k => { const a = v1[k] || 0, b = v2[k] || 0; dot += a * b; m1 += a * a; m2 += b * b; });
+        keys.forEach(k => {
+            const a = v1[k] || 0;
+            const b = v2[k] || 0;
+            dot += a * b;
+            m1 += a * a;
+            m2 += b * b;
+        });
         return (m1 && m2) ? dot / (Math.sqrt(m1) * Math.sqrt(m2)) : (m1 === m2 ? 1 : 0);
     }
 
-    function atualizarUI() {
+    function renderAlvoNoMatcher(alvo) {
+        const prods = PRODUTOS_DB[alvo.id] || [];
+        const area = document.getElementById('target-display-area');
+        area.innerHTML = `
+            <div class="card p-4 rounded-xl border-sky-500/30 bg-sky-500/5">
+                <h2 class="font-black text-white text-sm leading-tight mb-1">${alvo.nome}</h2>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] mono text-sky-500 font-bold">ID: ${alvo.id}</span>
+                    <span class="text-[9px] bg-sky-500 text-white px-2 py-0.5 rounded font-bold">${prods.length} PRODS</span>
+                </div>
+                <button onclick="carregarNoSimulador('${alvo.id}')" class="w-full mt-4 bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-black py-3 rounded-lg transition-all uppercase tracking-widest shadow-lg shadow-sky-900/20">🧪 Simular Estrutura</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-1">Composição Técnica</div>
+                ${renderizarItensEstrutura(alvo.itens)}
+            </div>
+        `;
+    }
+
+    function renderizarResultadosMatcher() {
         const vetoContainer = document.getElementById('veto-chips');
         const listContainer = document.getElementById('results-list');
-        vetoContainer.innerHTML = ''; listContainer.innerHTML = '';
+        vetoContainer.innerHTML = '';
+        listContainer.innerHTML = '';
+
         const extrasCount = new Map();
         const visiveis = CURRENT_RESULTS.filter(c => {
             const bloqueado = c.extras.some(e => ACTIVE_VETOS.has(e.nome));
-            if (!bloqueado) c.extras.forEach(e => extrasCount.set(e.nome, (extrasCount.get(e.nome) || 0) + 1));
+            if (!bloqueado) {
+                c.extras.forEach(e => extrasCount.set(e.nome, (extrasCount.get(e.nome) || 0) + 1));
+            }
             return !bloqueado;
         });
+
         extrasCount.forEach((count, nome) => {
             const btn = document.createElement('button');
-            btn.className = `text-[9px] px-3 py-1 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:border-sky-500 transition-colors`;
-            btn.innerHTML = `${nome.split(': ')[1]} <span class="text-sky-500 ml-1 font-bold">${count}</span>`;
-            btn.onclick = () => { ACTIVE_VETOS.add(nome); atualizarUI(); };
+            btn.className = "text-[9px] px-3 py-1 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:border-sky-500 transition-all font-bold";
+            btn.innerHTML = `${nome.split(': ')[1]} <span class="text-sky-500 ml-1">${count}</span>`;
+            btn.onclick = () => { ACTIVE_VETOS.add(nome); renderizarResultadosMatcher(); };
             vetoContainer.appendChild(btn);
         });
+
         visiveis.slice(0, 20).forEach(c => {
             const card = document.createElement('div');
-            card.className = "bg-slate-900 border border-slate-800 p-5 md:p-6 rounded-2xl shadow-xl";
+            card.className = "card p-6 rounded-2xl group hover:border-sky-500/50 transition-all animate-slide-in";
+            
             let auditHtml = '';
             if (c.extras.length === 0 && c.faltas.length === 0 && c.divergencias.length === 0) {
-                auditHtml = `<div class="border-l-4 border-emerald-500 bg-emerald-500/5 p-3 rounded text-[10px] font-bold text-emerald-400 mb-4 uppercase tracking-wider">Dosagens Idênticas</div>`;
+                auditHtml = `<div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg text-[10px] font-black text-emerald-400 mb-4 uppercase tracking-widest">Dosagens Idênticas</div>`;
             } else {
-                auditHtml = `<div class="border-l-4 border-slate-700 bg-black/20 p-3 rounded text-[10px] space-y-1.5 mb-4">`;
-                c.divergencias.forEach(d => auditHtml += `<div class="text-sky-400">• ${d.nome}: <span class="font-bold">${d.diff > 0 ? '+' : ''}${d.diff.toFixed(2)}%</span> <span class="opacity-40 text-[9px]">(${d.doseA}% → ${d.doseC}%)</span></div>`);
-                c.extras.forEach(e => auditHtml += `<div class="text-amber-400">• EXTRA: ${e.nome} (${e.qtd.toFixed(2)}%)</div>`);
+                auditHtml = `<div class="bg-slate-950/50 p-3 rounded-lg text-[10px] space-y-1.5 mb-4 border border-slate-800">`;
+                c.divergencias.forEach(d => auditHtml += `<div class="text-sky-400 flex justify-between"><span>• ${d.nome}:</span><span class="font-bold">${d.diff > 0 ? '+' : ''}${d.diff.toFixed(2)}%</span></div>`);
+                c.extras.forEach(e => auditHtml += `<div class="text-amber-400 flex justify-between"><span>• EXTRA: ${e.nome}</span><span class="font-bold">${e.qtd.toFixed(2)}%</span></div>`);
                 c.faltas.forEach(f => auditHtml += `<div class="text-red-400">• FALTA: ${f}</div>`);
                 auditHtml += `</div>`;
             }
+
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-4">
                     <div class="flex-1 pr-4">
-                        <h3 class="font-bold text-white text-base md:text-lg leading-tight">${c.nome}</h3>
-                        <span class="text-[10px] mono text-slate-500">ID: ${c.id}</span>
+                        <h3 class="font-black text-white text-lg leading-tight group-hover:text-sky-400 transition-colors">${c.nome}</h3>
+                        <span class="text-[10px] mono text-slate-500 font-bold uppercase">ID: ${c.id}</span>
                     </div>
                     <div class="text-right shrink-0">
-                        <div class="text-3xl md:text-4xl font-black text-sky-500 tracking-tighter">${(c.score * 100).toFixed(1)}%</div>
-                        <div class="text-[7px] uppercase text-slate-500 font-bold">Similaridade</div>
+                        <div class="text-4xl font-black text-sky-500 tracking-tighter">${(c.score * 100).toFixed(1)}%</div>
+                        <div class="text-[8px] uppercase text-slate-500 font-black tracking-widest">Similaridade</div>
                     </div>
                 </div>
                 ${auditHtml}
-                <details class="group/det">
-                    <summary class="text-[10px] text-slate-400 cursor-pointer hover:text-white flex items-center gap-2 font-bold uppercase tracking-widest">
-                        <span>▶ Ver Estrutura Técnica</span>
-                    </summary>
-                    <div class="mt-4 border-t border-slate-800 pt-4">${renderEstrutura(c.itens)}</div>
-                </details>
+                <div class="flex gap-3">
+                    <button onclick="carregarNoSimulador('${c.id}')" class="flex-1 bg-slate-800 hover:bg-sky-600 text-white text-[10px] font-black py-2 rounded-lg transition-all uppercase tracking-widest">Simular</button>
+                    <details class="flex-[2]">
+                        <summary class="w-full bg-slate-900 hover:bg-slate-800 text-slate-400 text-[10px] font-black py-2 rounded-lg transition-all uppercase tracking-widest text-center cursor-pointer">Ver Estrutura</summary>
+                        <div class="mt-4 p-4 bg-black/20 rounded-xl border border-white/5">
+                            ${renderizarItensEstrutura(c.itens)}
+                        </div>
+                    </details>
+                </div>
             `;
             listContainer.appendChild(card);
         });
     }
 
-    function renderAlvo(alvo) {
-        const prods = PRODUTOS_DB[alvo.id] || [];
-        document.getElementById('target-prod-count').textContent = `${prods.length} ITENS`;
-        document.getElementById('target-area').innerHTML = `
-            <div class="mb-6 p-4 rounded-xl bg-slate-800/40 border border-sky-500/30 shadow-inner">
-                <h2 class="font-bold text-white text-lg leading-tight">${alvo.nome}</h2>
-                <div class="text-[10px] mono text-sky-500 mt-1 font-bold">ID: ${alvo.id}</div>
-            </div>
-            <div class="mb-6">
-                <div class="text-[10px] font-bold text-slate-500 uppercase mb-3 border-b border-slate-800 pb-1 tracking-widest">Estrutura de Resinas</div>
-                <div class="space-y-4">${renderEstrutura(alvo.itens)}</div>
-            </div>
-            <details class="group/port">
-                <summary class="text-[10px] font-bold text-slate-500 uppercase mb-3 border-b border-slate-800 pb-1 cursor-pointer hover:text-sky-400 flex justify-between items-center">
-                    <span>Produtos Vinculados</span>
-                    <span class="text-[8px] group-open/port:rotate-90 transition-transform">▶</span>
-                </summary>
-                <div class="space-y-1 max-h-60 overflow-y-auto custom-scroll pr-1">
-                    ${prods.length ? prods.map(p => `<div class="text-[10px] p-2 rounded bg-sky-500/5 text-sky-200 mb-1 leading-tight border border-sky-500/10">${p}</div>`).join('') : '<div class="text-[10px] text-slate-600 italic">Sem vínculos.</div>'}
-                </div>
-            </details>
-        `;
-    }
-
-    function renderEstrutura(itens) {
+    function renderizarItensEstrutura(itens) {
         const grupos = itens.reduce((acc, i) => {
-            if (!acc[i.rosca]) acc[i.rosca] = { p: i.perc, h: [] };
+            if (!acc[i.rosca]) acc[i.rosca] = { p: i.percRosca, h: [] };
             const cor = i.tipo === 'BASE' ? 'text-sky-400' : (i.tipo === 'PIG' ? 'text-purple-400' : 'text-amber-400');
-            acc[i.rosca].h.push(`<div class="flex justify-between text-[10px] py-2 border-b border-white/5"><span class="truncate ${cor} opacity-90 font-medium">${i.desc}</span><span class="mono ml-2 text-slate-400 font-bold">${i.qtd.toFixed(2)}%</span></div>`);
+            acc[i.rosca].h.push(`
+                <div class="flex justify-between text-[10px] py-1.5 border-b border-white/5">
+                    <span class="truncate ${cor} font-medium">${i.desc}</span>
+                    <span class="mono ml-2 text-slate-400 font-bold">${i.qtd.toFixed(2)}%</span>
+                </div>`);
             return acc;
         }, {});
-        return Object.keys(grupos).sort().map(r => `<div class="mb-4"><div class="flex justify-between text-[9px] font-bold text-slate-500 uppercase mb-1"><span>${r}</span><span class="bg-slate-800 px-1.5 rounded text-slate-400">${grupos[r].p}%</span></div>${grupos[r].h.join('')}</div>`).join('');
+        
+        return Object.keys(grupos).sort().map(r => `
+            <div class="mb-4">
+                <div class="flex justify-between text-[9px] font-black text-slate-600 uppercase mb-1 tracking-widest">
+                    <span>${r}</span>
+                    <span class="bg-slate-800 px-2 rounded text-slate-400">${grupos[r].p}%</span>
+                </div>
+                ${grupos[r].h.join('')}
+            </div>`).join('');
     }
 
-    function resetVetos() { ACTIVE_VETOS.clear(); atualizarUI(); }
+    function resetVetos() { ACTIVE_VETOS.clear(); renderizarResultadosMatcher(); }
+
+    /**
+     * =========================================================================
+     * 6. LÓGICA SIMULADOR (FÍSICA, PPM E COF)
+     * =========================================================================
+     */
+    function carregarNoSimulador(id) {
+        const alvo = DB[id];
+        if (!alvo) return;
+
+        const roscasMap = {};
+        alvo.itens.forEach(it => {
+            if (!roscasMap[it.rosca]) roscasMap[it.rosca] = { share: it.percRosca, materials: [] };
+            const p = getProps(it.desc);
+            roscasMap[it.rosca].materials.push({ name: it.desc, pct: it.qtd, ppm: p.ppm });
+        });
+
+        formula = Object.keys(roscasMap).sort().map((rName, idx) => ({
+            id: idx + 1,
+            name: rName,
+            share: roscasMap[rName].share,
+            materials: roscasMap[rName].materials
+        }));
+
+        activeRoscaIdx = 0;
+        renderRoscas();
+        calculateAll();
+        switchTab('simulator');
+    }
+
+    function renderMaterialList() {
+        const container = document.getElementById('materialList');
+        const search = document.getElementById('searchMat').value.toUpperCase();
+        const filtered = Array.from(ALL_MATERIALS_SET).filter(m => m.includes(search)).sort();
+        
+        container.innerHTML = filtered.map(name => {
+            const p = getProps(name);
+            const ppmTag = p.ppm > 0 ? `<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">${p.ppm} PPM</span>` : '';
+            return `
+                <div onclick="addMaterialToRosca('${name}')" class="p-3 bg-slate-800/40 border border-slate-700 rounded-lg cursor-pointer hover:bg-sky-500/10 hover:border-sky-500 transition-all group flex justify-between items-center">
+                    <div class="text-[10px] font-bold text-slate-300 group-hover:text-white leading-tight truncate pr-2">${name}</div>
+                    ${ppmTag}
+                </div>`;
+        }).join('');
+    }
+
+    function addRosca() {
+        const id = formula.length + 1;
+        formula.push({ id, name: `Camada ${String.fromCharCode(64 + id)}`, share: 0, materials: [] });
+        activeRoscaIdx = formula.length - 1;
+        renderRoscas();
+        calculateAll();
+    }
+
+    function addMaterialToRosca(name) {
+        const p = getProps(name);
+        formula[activeRoscaIdx].materials.push({ name, pct: 0, ppm: p.ppm });
+        renderRoscas();
+        calculateAll();
+    }
+
+    function updateMaterialPct(rIdx, mIdx, val) { formula[rIdx].materials[mIdx].pct = parseFloat(val) || 0; calculateAll(); }
+    function updateMaterialPpm(rIdx, mIdx, val) { formula[rIdx].materials[mIdx].ppm = parseFloat(val) || 0; calculateAll(); }
+    function updateRoscaShare(idx, val) { formula[idx].share = parseFloat(val) || 0; calculateAll(); }
+    function removeMaterial(rIdx, mIdx) { formula[rIdx].materials.splice(mIdx, 1); renderRoscas(); calculateAll(); }
+    function setActiveRosca(idx) { activeRoscaIdx = idx; renderRoscas(); }
+
+    /**
+     * getProps (Best Match Logic V2):
+     * Busca a resina no banco de dados ignorando caracteres especiais e 
+     * priorizando a correspondência mais longa (mais específica).
+     */
+    function getProps(name) {
+        const cleanName = name.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        let bestMatch = "DEFAULT";
+        let maxLen = 0;
+
+        for (let key in RESIN_PROPS) {
+            const cleanKey = key.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (cleanName.includes(cleanKey) && cleanKey.length > maxLen) {
+                bestMatch = key;
+                maxLen = cleanKey.length;
+            }
+        }
+        return RESIN_PROPS[bestMatch];
+    }
+
+    function renderRoscas() {
+        const container = document.getElementById('roscasContainer');
+        container.innerHTML = formula.map((rosca, rIdx) => `
+            <div onclick="setActiveRosca(${rIdx})" class="card rounded-xl p-4 cursor-pointer transition-all ${activeRoscaIdx === rIdx ? 'active-rosca' : 'bg-slate-900/40 opacity-60 border-slate-800'}">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="w-6 h-6 rounded-lg ${activeRoscaIdx === rIdx ? 'bg-sky-500 text-white' : 'bg-slate-700 text-slate-400'} flex items-center justify-center font-black text-xs">${String.fromCharCode(64 + rosca.id)}</span>
+                        <span class="font-black text-xs uppercase tracking-widest ${activeRoscaIdx === rIdx ? 'text-sky-400' : 'text-slate-500'}">${rosca.name}</span>
+                    </div>
+                    <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+                        <input type="number" value="${rosca.share}" oninput="updateRoscaShare(${rIdx}, this.value)" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 w-14 text-xs mono text-sky-400 outline-none text-center font-bold focus:border-sky-500">
+                        <span class="text-xs font-bold text-slate-600">%</span>
+                    </div>
+                </div>
+                <div class="space-y-2" onclick="event.stopPropagation()">
+                    ${rosca.materials.map((m, mIdx) => `
+                        <div class="flex items-center gap-3 bg-slate-950/80 p-2 rounded-lg border border-white/5 group">
+                            <div class="flex-1">
+                                <div class="text-[10px] font-bold text-slate-400 truncate">${m.name}</div>
+                                <div class="flex items-center gap-1 mt-1">
+                                    <span class="text-[8px] text-slate-600 font-bold uppercase">PPM:</span>
+                                    <input type="number" value="${m.ppm}" oninput="updateMaterialPpm(${rIdx}, ${mIdx}, this.value)" class="ppm-input">
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="number" value="${m.pct}" oninput="updateMaterialPct(${rIdx}, ${mIdx}, this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 w-14 text-xs mono text-emerald-400 outline-none text-center font-bold focus:border-emerald-500">
+                                <span class="text-[10px] font-bold text-slate-600">%</span>
+                                <button onclick="removeMaterial(${rIdx}, ${mIdx})" class="text-slate-700 hover:text-red-500 transition-colors px-1 font-black text-lg">×</button>
+                            </div>
+                        </div>`).join('')}
+                </div>
+            </div>`).join('');
+    }
+
+    /**
+     * =========================================================================
+     * 7. MOTOR DE CÁLCULO (FÍSICA + PPM + COF + ALONGAMENTO)
+     * =========================================================================
+     */
+    function calculateAll() {
+        const micra = parseFloat(document.getElementById('globalMicra').value) || 40;
+        
+        // Fatores de Escala (Restaurado V1)
+        const factorDart = micra / 40; 
+        const factorElong = 1 + ((micra - 40) * 0.0025);
+
+        let totalPpm = 0, dardo = 0, dens = 0, logMI = 0, totalShare = 0;
+        let tMD = 0, tCD = 0, eMD = 0, eCD = 0;
+        
+        let summary = { Metalo: 0, HDPE: 0, LDPE: 0, REC: 0, ADIT: 0 };
+
+        formula.forEach(rosca => {
+            const rShare = rosca.share / 100; 
+            totalShare += rosca.share;
+            
+            let rD = 0, rDens = 0, rLogMI = 0, rMatTotal = 0;
+            let rTMD = 0, rTCD = 0, rEMD = 0, rECD = 0;
+
+            rosca.materials.forEach(m => {
+                const p = getProps(m.name); 
+                const mPct = m.pct / 100; 
+                rMatTotal += m.pct;
+
+                // PPM Resultante no Filme: PPM do Material * % na Rosca * % da Rosca no Filme
+                totalPpm += (m.ppm || 0) * mPct * rShare;
+
+                rD += p.dart * mPct; 
+                rDens += p.dens * mPct;
+                rTMD += p.tracMD * mPct; 
+                rTCD += p.tracCD * mPct;
+                rEMD += p.elongMD * mPct; 
+                rECD += p.elongCD * mPct;
+                
+                const safeMI = p.mi > 0 ? p.mi : 0.01;
+                rLogMI += Math.log(safeMI) * mPct;
+
+                const n = m.name.toUpperCase();
+                if (n.includes('PIG.') || n.includes('ADIT.') || n.includes('DESLIZANTE')) summary.ADIT += mPct * rShare;
+                else if (n.includes('FLEXUS') || n.includes('EXCEED') || n.includes('PROXESS') || n.includes('ENABLE')) summary.Metalo += mPct * rShare;
+                else if (n.includes('HE150') || n.includes('GF4950')) summary.HDPE += mPct * rShare;
+                else if (n.includes('REC')) summary.REC += mPct * rShare;
+                else summary.LDPE += mPct * rShare;
+            });
+
+            const norm = rMatTotal > 0 ? (100 / rMatTotal) : 0;
+            dardo += (rD * norm) * rShare; 
+            dens += (rDens * norm) * rShare;
+            tMD += (rTMD * norm) * rShare; 
+            tCD += (rTCD * norm) * rShare;
+            eMD += (rEMD * norm) * rShare; 
+            eCD += (rECD * norm) * rShare;
+            logMI += (rLogMI * norm) * rShare;
+        });
+
+        // --- CÁLCULO DO COF (Fórmula V2) ---
+        let cofFinal;
+        if (totalPpm < 200) {
+            cofFinal = (0.7594 - (0.000610 * totalPpm) - (0.002508 * micra)) * 1.23;
+        } else {
+            cofFinal = 0.7594 - (0.000610 * totalPpm) - (0.002508 * micra);
+        }
+
+        const hasData = totalShare > 0;
+        
+        // UI SUPERFÍCIE
+        document.getElementById('resPpm').textContent = hasData ? Math.round(totalPpm) : "0";
+        const cofDisplay = document.getElementById('resCof');
+        const cofStatus = document.getElementById('cof-status');
+        const barCof = document.getElementById('barCof');
+
+        if (!hasData) {
+            cofDisplay.textContent = "--";
+            cofStatus.textContent = "--";
+            barCof.style.width = "0%";
+        } else if (cofFinal <= 0.08) {
+            cofDisplay.textContent = "< 0.08";
+            cofStatus.textContent = "Ultra-Slip";
+            barCof.style.width = "100%";
+        } else {
+            const cofMin = Math.max(0, cofFinal - 0.04);
+            const cofMax = cofFinal + 0.04;
+            cofDisplay.textContent = `${cofMin.toFixed(2)} - ${cofMax.toFixed(2)}`;
+            cofStatus.textContent = cofFinal < 0.20 ? "Alto Deslizamento" : (cofFinal < 0.40 ? "Médio" : "Baixo");
+            barCof.style.width = `${Math.max(5, 100 - (cofFinal * 100))}%`;
+        }
+
+        // UI MECÂNICA (RESTAURADO ALONGAMENTO V1)
+        const finalDardo = dardo * factorDart;
+        const finalMI = Math.exp(logMI);
+        const finalEMD = eMD * factorElong;
+        const finalECD = eCD * factorElong;
+        const loadMD = tMD * (micra / 1000) * 25.4;
+        const loadCD = tCD * (micra / 1000) * 25.4;
+
+        document.getElementById('resDensity').textContent = hasData ? dens.toFixed(3) : "--";
+        document.getElementById('resMFI').textContent = hasData ? finalMI.toFixed(2) : "--";
+        document.getElementById('resDart').textContent = hasData ? `${Math.round(finalDardo)}g` : "--";
+        document.getElementById('barDart').style.width = `${Math.min(100, (finalDardo / 1800) * 100)}%`;
+
+        document.getElementById('resTracMD').textContent = hasData ? `${tMD.toFixed(1)} MPa` : "--";
+        document.getElementById('resTracCD').textContent = hasData ? `${tCD.toFixed(1)} MPa` : "--";
+        document.getElementById('resElongMD').textContent = hasData ? `${Math.round(finalEMD)}%` : "--";
+        document.getElementById('resElongCD').textContent = hasData ? `${Math.round(finalECD)}%` : "--";
+        document.getElementById('resLoadMD').textContent = hasData ? `${loadMD.toFixed(1)} N` : "--";
+        document.getElementById('resLoadCD').textContent = hasData ? `${loadCD.toFixed(1)} N` : "--";
+
+        // RESUMO DA BLENDA
+        document.getElementById('blendaSummary').innerHTML = `
+            <div class="flex justify-between border-b border-white/5 pb-1"><span>Metalocênicos:</span><span class="text-white font-bold">${(summary.Metalo * 100).toFixed(1)}%</span></div>
+            <div class="flex justify-between border-b border-white/5 pb-1"><span>PEAD:</span><span class="text-white font-bold">${(summary.HDPE * 100).toFixed(1)}%</span></div>
+            <div class="flex justify-between border-b border-white/5 pb-1"><span>PEBD/L:</span><span class="text-white font-bold">${(summary.LDPE * 100).toFixed(1)}%</span></div>
+            <div class="flex justify-between border-b border-white/5 pb-1"><span>Reciclado:</span><span class="text-white font-bold">${(summary.REC * 100).toFixed(1)}%</span></div>
+            <div class="flex justify-between border-b border-white/5 pb-1 col-span-2"><span class="text-amber-500">Aditivos/Pigmentos:</span><span class="text-amber-500 font-bold">${(summary.ADIT * 100).toFixed(1)}%</span></div>
+        `;
+
+        const alerts = document.getElementById('alerts'); 
+        alerts.innerHTML = '';
+        if (Math.abs(totalShare - 100) > 0.1 && hasData) {
+            alerts.innerHTML += `<div class="p-3 bg-red-900/30 border border-red-500/30 rounded-lg text-[10px] text-red-400 font-black uppercase text-center animate-pulse">⚠️ Soma das Camadas = ${totalShare.toFixed(1)}%</div>`;
+        }
+    }
 </script>
 </body>
 </html>
