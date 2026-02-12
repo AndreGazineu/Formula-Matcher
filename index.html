@@ -444,67 +444,63 @@
     const PRODUTOS_URL = 'https://andregazineu.github.io/Formula-Matcher/RPCP372_produtos.csv';
 
     const RESIN_PROPS = {
-        /* INSUMOS E ADITIVOS (EXPANDIDO V2) */
-        "PIG.": { dens: 1.97, mi: 25.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-        "DESLIZANTE 1%": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 250 },
-        "ANTI-BLOQUEIO": { dens: 0.98, mi: 3.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-        "ANTI-ESTATICO": { dens: 0.93, mi: 2.5, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-        "ANTI-OXIDANTE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-        "AUXILIAR DE FLUXO": { dens: 0.91, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-        "REPELENTE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-        "VCI": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-        "DESSECANTE": { dens: 1.20, mi: 5.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-        "ANTI-FIBRILANTE": { dens: 0.95, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+    /* --- METALOCÊNICOS (NOMES EXATOS DO CSV) --- */
+    "PELBD METALOCENICO PROXESS 1806 S3": { dens: 0.918, mi: 0.60, dart: 410, tracMD: 30, tracCD: 20, elongMD: 620, elongCD: 850, ppm: 800 },
+    "PELBD METALOCENICO PROXESS 1809 PL14": { dens: 0.918, mi: 0.90, dart: 300, tracMD: 40, tracCD: 30, elongMD: 770, elongCD: 930, ppm: 0 },
+    "PELBD METALOCENICO PROXEES 2606": { dens: 0.918, mi: 0.60, dart: 450, tracMD: 35, tracCD: 25, elongMD: 650, elongCD: 880, ppm: 0 },
+    "PELBD ENABLE 2005 RE - EXCEED™ FLOW M 0520.RE": { dens: 0.920, mi: 0.50, dart: 378, tracMD: 60, tracCD: 55, elongMD: 480, elongCD: 710, ppm: 500 },
+    "ENABLE 3505 MC - EXCEED™ FLOW M 0535.MC": { dens: 0.935, mi: 0.50, dart: 126, tracMD: 60, tracCD: 50, elongMD: 550, elongCD: 810, ppm: 0 },
+    "PELBD ENABLE 4002 MC - EXCEED™ STIFF+ M 0238.MC": { dens: 0.940, mi: 0.25, dart: 95, tracMD: 70, tracCD: 60, elongMD: 490, elongCD: 810, ppm: 0 },
+    "PELBD FLEXUS 9211": { dens: 0.917, mi: 1.00, dart: 700, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
+    "PELBD FLEXUS 9212 XP": { dens: 0.918, mi: 1.00, dart: 650, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
+    "PELBD EXCEED 1018 RK - Exceed™ m 1018.RK": { dens: 0.918, mi: 1.00, dart: 900, tracMD: 38, tracCD: 30, elongMD: 700, elongCD: 900, ppm: 1000 },
+    "PELBD EXCEED 2012MK": { dens: 0.912, mi: 2.00, dart: 1086, tracMD: 65, tracCD: 60, elongMD: 560, elongCD: 610, ppm: 0 },
 
-        /* METALOCÊNICOS (BRASKEM & EXXON) */
-        "PROXESS 1806 S3": { dens: 0.918, mi: 0.60, dart: 410, tracMD: 30, tracCD: 20, elongMD: 620, elongCD: 850, ppm: 800 },
-        "PROXESS 1809": { dens: 0.918, mi: 0.90, dart: 300, tracMD: 40, tracCD: 30, elongMD: 770, elongCD: 930, ppm: 0 },
-        "PROXESS 2806": { dens: 0.918, mi: 0.60, dart: 450, tracMD: 35, tracCD: 25, elongMD: 650, elongCD: 880, ppm: 0 },
-        "ENABLE 2005 ME": { dens: 0.920, mi: 0.50, dart: 378, tracMD: 60, tracCD: 55, elongMD: 480, elongCD: 710, ppm: 500 },
-        "ENABLE 3505": { dens: 0.935, mi: 0.50, dart: 126, tracMD: 60, tracCD: 50, elongMD: 550, elongCD: 810, ppm: 0 },
-        "ENABLE 4002MC": { dens: 0.940, mi: 0.25, dart: 95, tracMD: 70, tracCD: 60, elongMD: 490, elongCD: 810, ppm: 0 },
-        "FLEXUS 9211": { dens: 0.917, mi: 1.00, dart: 700, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
-        "FLEXUS 9212": { dens: 0.918, mi: 1.00, dart: 650, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
-        "FLEXUS 9511": { dens: 0.917, mi: 1.00, dart: 700, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
-        "EXCEED 1018 MK": { dens: 0.918, mi: 1.00, dart: 900, tracMD: 38, tracCD: 30, elongMD: 700, elongCD: 900, ppm: 1000 },
-        "EXCEED XP 7052": { dens: 0.912, mi: 0.50, dart: 1417, tracMD: 70, tracCD: 65, elongMD: 410, elongCD: 630, ppm: 0 },
-        "EXCEED 1327": { dens: 0.927, mi: 1.30, dart: 220, tracMD: 60, tracCD: 50, elongMD: 580, elongCD: 700, ppm: 0 },
-        "EXCEED 2012": { dens: 0.912, mi: 2.00, dart: 1086, tracMD: 65, tracCD: 60, elongMD: 560, elongCD: 610, ppm: 0 },
+    /* --- LINEARES / BUTENOS / HEXENOS --- */
+    "PELBD HEXENO HF2208S3": { dens: 0.922, mi: 0.75, dart: 200, tracMD: 45, tracCD: 30, elongMD: 950, elongCD: 1150, ppm: 1200 },
+    "PELBD HF2007": { dens: 0.920, mi: 0.73, dart: 180, tracMD: 45, tracCD: 40, elongMD: 1260, elongCD: 1530, ppm: 0 },
+    "PELBD HF0131XP": { dens: 0.937, mi: 10.5, dart: 120, tracMD: 30, tracCD: 25, elongMD: 500, elongCD: 800, ppm: 0 },
+    "PELBD BUTENO LF 720/20": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 0 },
+    "PELBD BUTENO LF 720/21  C/ DESLIZANTE": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 1000 },
+    "POLIETILENO LINEAR BRASKEN PELBD LF 0720/21 AF": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 0 },
 
-        /* LINEARES (HF SERIES) */
-        "HF2208S3": { dens: 0.922, mi: 0.75, dart: 200, tracMD: 45, tracCD: 30, elongMD: 950, elongCD: 1150, ppm: 1200 },
-        "HF2007": { dens: 0.920, mi: 0.73, dart: 180, tracMD: 45, tracCD: 40, elongMD: 1260, elongCD: 1530, ppm: 0 },
-        "HF0131XP": { dens: 0.937, mi: 10.5, dart: 120, tracMD: 30, tracCD: 25, elongMD: 500, elongCD: 800, ppm: 0 },
+    /* --- PEBD CONVENCIONAL E INDUSTRIAL --- */
+    "PEBD CONVENCIONAL EB 853/72": { dens: 0.923, mi: 2.70, dart: 80, tracMD: 25, tracCD: 20, elongMD: 350, elongCD: 1050, ppm: 800 },
+    "POLIETILENO BAIXA BRASKEN PEBD EB853/72": { dens: 0.923, mi: 2.70, dart: 80, tracMD: 25, tracCD: 20, elongMD: 350, elongCD: 1050, ppm: 800 },
+    "PEBD TS-9022": { dens: 0.931, mi: 2.20, dart: 100, tracMD: 20, tracCD: 15, elongMD: 350, elongCD: 950, ppm: 0 },
+    "PEBD INDUSTRIAL TX7001": { dens: 0.922, mi: 0.14, dart: 131, tracMD: 25, tracCD: 25, elongMD: 350, elongCD: 940, ppm: 0 },
+    "PEBD INDUSTRIAL TX7003": { dens: 0.922, mi: 0.27, dart: 131, tracMD: 20, tracCD: 20, elongMD: 380, elongCD: 910, ppm: 0 },
+    "PEBD INDUSTRIAL TX8079": { dens: 0.924, mi: 0.30, dart: 144, tracMD: 27, tracCD: 33, elongMD: 280, elongCD: 620, ppm: 0 },
 
-        /* PEBD / CONVENCIONAIS */
-        "EB 853/72": { dens: 0.923, mi: 2.70, dart: 80, tracMD: 25, tracCD: 20, elongMD: 350, elongCD: 1050, ppm: 800 },
-        "LF 720/21": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 1000 },
-        "TS9022": { dens: 0.931, mi: 2.20, dart: 100, tracMD: 20, tracCD: 15, elongMD: 350, elongCD: 950, ppm: 0 },
-        "TX7001": { dens: 0.922, mi: 0.14, dart: 131, tracMD: 25, tracCD: 25, elongMD: 350, elongCD: 940, ppm: 0 },
-        "TX7003": { dens: 0.922, mi: 0.27, dart: 131, tracMD: 20, tracCD: 20, elongMD: 380, elongCD: 910, ppm: 0 },
-        "TX8079": { dens: 0.924, mi: 0.30, dart: 144, tracMD: 27, tracCD: 33, elongMD: 280, elongCD: 620, ppm: 0 },
+    /* --- PEAD (ALTA DENSIDADE) --- */
+    "PEAD HE-150 PL14": { dens: 0.948, mi: 1.00, dart: 40, tracMD: 40, tracCD: 30, elongMD: 300, elongCD: 400, ppm: 0 },
+    "PEAD GF 4950": { dens: 0.956, mi: 0.36, dart: 30, tracMD: 30, tracCD: 25, elongMD: 100, elongCD: 200, ppm: 0 },
 
-        /* PEAD (ALTA DENSIDADE) */
-        "HE150": { dens: 0.948, mi: 1.00, dart: 40, tracMD: 40, tracCD: 30, elongMD: 300, elongCD: 400, ppm: 0 },
-        "GF4950": { dens: 0.956, mi: 0.36, dart: 30, tracMD: 30, tracCD: 25, elongMD: 100, elongCD: 200, ppm: 0 },
+    /* --- RECUPERADOS --- */
+    "PEBD REC. INDUSTRIAL CECRISA": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+    "PEBD REC. CONVENCIONAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+    "PEBD REC. BRANCO COMUM": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+    "PEBD REC. INDUSTRIAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+    "PEBD REC. SACARIA": { dens: 0.922, mi: 1.00, dart: 110, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 400 },
+    "PEBD REC. CINZA VIPAL-UNIQUE": { dens: 0.924, mi: 1.20, dart: 100, tracMD: 20, tracCD: 16, elongMD: 300, elongCD: 500, ppm: 400 },
+    "PEBD REC. VARREDURA": { dens: 0.928, mi: 2.00, dart: 70, tracMD: 15, tracCD: 10, elongMD: 150, elongCD: 300, ppm: 400 },
+    "PEBD REC. PRETO VIPAL": { dens: 0.924, mi: 1.20, dart: 100, tracMD: 20, tracCD: 16, elongMD: 300, elongCD: 500, ppm: 400 },
 
-        /* RECUPERADOS (DETALHADO V2) */
-        "REC BRANCO": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
-        "REC CONVENCIONAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
-        "REC VIPAL": { dens: 0.924, mi: 1.20, dart: 100, tracMD: 20, tracCD: 16, elongMD: 300, elongCD: 500, ppm: 400 },
-        "SACARIA": { dens: 0.922, mi: 1.00, dart: 110, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 400 },
-        "RAJADO": { dens: 0.926, mi: 1.80, dart: 80, tracMD: 16, tracCD: 12, elongMD: 200, elongCD: 350, ppm: 400 },
-        "INDUSTRIAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
-        "VARREDURA": { dens: 0.928, mi: 2.00, dart: 70, tracMD: 15, tracCD: 10, elongMD: 150, elongCD: 300, ppm: 400 },
+    /* --- ADITIVOS E PIGMENTOS --- */
+    "ADIT. ANTI-BLOQUEIO 5009": { dens: 0.98, mi: 3.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+    "ADIT. ANTI-ESTATICO": { dens: 0.93, mi: 2.5, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+    "ADIT. AUXILIAR DE FLUXO": { dens: 0.91, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+    "ADIT. DESLIZANTE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 10000 },
+    "ADIT. DESLIZANTE 102109": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 10000 },
+    "ADIT. MASTER DESSECANTE": { dens: 1.20, mi: 5.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+    "ADIT. ANTI-OXIDANTE - AO 25A - VIPE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+    "ADIT. ANTIFIBRILANTE": { dens: 0.95, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+    "PIG. BRANCO PADRAO": { dens: 1.97, mi: 25.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+    "PIG. PRETO PR 21694": { dens: 1.20, mi: 15.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
 
-        /* ESTIMADOS / ESPECIAIS */
-        "EF2126S3": { dens: 0.921, mi: 2.60, dart: 300, tracMD: 35, tracCD: 28, elongMD: 600, elongCD: 800, ppm: 800 },
-        "FEL PL 14": { dens: 0.930, mi: 2.00, dart: 120, tracMD: 28, tracCD: 22, elongMD: 400, elongCD: 700, ppm: 1000 },
-        "FEL020MA": { dens: 0.930, mi: 1.80, dart: 100, tracMD: 26, tracCD: 20, elongMD: 380, elongCD: 650, ppm: 800 },
-
-        /* FALLBACK */
-        "DEFAULT": { dens: 0.920, mi: 1.00, dart: 100, tracMD: 20, tracCD: 20, elongMD: 400, elongCD: 600, ppm: 0 }
-    };
+    /* FALLBACK */
+    "DEFAULT": { dens: 0.920, mi: 1.00, dart: 100, tracMD: 20, tracCD: 20, elongMD: 400, elongCD: 600, ppm: 0 }
+};
 
     /**
      * =========================================================================
