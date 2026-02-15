@@ -1,10 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymer Lab Pro | Ultimate Integrated Suite V12</title>
-    
+    <title>Formula Matcher | Sistema de Análise de Polímeros</title>
+
     <!-- 
         FRAMEWORKS E BIBLIOTECAS 
         - Tailwind CSS: Estilização utilitária de alta performance
@@ -13,7 +15,9 @@
     -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
 
     <style>
         /* 
@@ -42,69 +46,95 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .mono { font-family: 'JetBrains Mono', monospace; }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
 
         /* 
             CUSTOM SCROLLBAR 
             Melhoria visual para containers de dados longos
         */
-        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #0b1120; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #0b1120;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
 
         /* 
             COMPONENTES DE UI 
         */
-        .card { 
-            background: var(--bg-card); 
-            border: 1px solid var(--slate-border); 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); 
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--slate-border);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
             border-radius: 0.75rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .card:hover { border-color: #475569; }
-
-        .active-rosca { 
-            border-color: var(--sky-primary) !important; 
-            background: #1e293b; 
-            box-shadow: 0 0 25px rgba(14, 165, 233, 0.2); 
+        .card:hover {
+            border-color: #475569;
         }
 
-        .tab-btn { 
-            position: relative; 
-            transition: all 0.3s ease; 
-            cursor: pointer; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            font-size: 0.7rem; 
+        .active-rosca {
+            border-color: var(--sky-primary) !important;
+            background: #1e293b;
+            box-shadow: 0 0 25px rgba(14, 165, 233, 0.2);
+        }
+
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.7rem;
             letter-spacing: 0.15em;
             color: #64748b;
             padding: 0.5rem 0;
         }
 
-        .tab-btn.active { color: var(--sky-primary); }
-        .tab-btn.active::after { 
-            content: ''; 
-            position: absolute; 
-            bottom: -12px; 
-            left: 0; 
-            width: 100%; 
-            height: 3px; 
-            background: var(--sky-primary); 
-            border-radius: 10px; 
+        .tab-btn.active {
+            color: var(--sky-primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--sky-primary);
+            border-radius: 10px;
             box-shadow: 0 0 10px var(--sky-primary);
         }
 
         /* 
             INPUTS E FORMULÁRIOS 
         */
-        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-        input:focus { outline: none; border-color: var(--sky-primary) !important; }
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--sky-primary) !important;
+        }
 
         .ppm-input {
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--slate-border);
             border-radius: 4px;
             padding: 2px 6px;
@@ -116,12 +146,20 @@
             outline: none;
             transition: all 0.2s;
         }
-        .ppm-input:focus { border-color: var(--emerald-primary); box-shadow: 0 0 8px rgba(16, 185, 129, 0.2); }
+
+        .ppm-input:focus {
+            border-color: var(--emerald-primary);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+        }
 
         /* 
             TOOLTIPS (RESTAURADO V1)
         */
-        .tooltip { position: relative; cursor: help; }
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
         .tooltip:hover::after {
             content: attr(data-tip);
             position: absolute;
@@ -137,7 +175,7 @@
             width: 180px;
             z-index: 100;
             border: 1px solid #334155;
-            box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
             text-align: center;
             line-height: 1.4;
         }
@@ -146,16 +184,38 @@
             ANIMAÇÕES (RESTAURADO V1)
         */
         @keyframes pulse-subtle {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(0.98); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(0.98);
+            }
         }
-        .animate-pulse-subtle { animation: pulse-subtle 3s infinite ease-in-out; }
+
+        .animate-pulse-subtle {
+            animation: pulse-subtle 3s infinite ease-in-out;
+        }
 
         @keyframes slide-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .animate-slide-in { animation: slide-in 0.4s ease-out forwards; }
+
+        .animate-slide-in {
+            animation: slide-in 0.4s ease-out forwards;
+        }
 
         /* 
             GLASSMORPHISM 
@@ -163,12 +223,15 @@
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        details summary::-webkit-details-marker { display: none; }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
     </style>
 </head>
+
 <body>
 
     <!-- 
@@ -179,24 +242,40 @@
         <div class="max-w-full mx-auto flex justify-between items-center">
             <div class="flex items-center gap-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-sky-900/20">P</div>
+                    <div
+                        class="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-sky-900/20">
+                        F</div>
                     <div>
-                        <h1 class="text-xl font-black text-sky-400 tracking-tighter uppercase leading-none">Polymer<span class="text-white">Lab</span> <span class="text-sky-600">PRO</span></h1>
-                        <span class="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase">Ultimate Integrated Suite V12.0</span>
+                        <h1 class="text-xl font-black text-sky-400 tracking-tighter uppercase leading-none">Formula
+                            <span class="text-white">Matcher</span>
+                        </h1>
+                        <span class="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase">Sistema de Análise
+                            Técnica de Polímeros</span>
                     </div>
                 </div>
-                
+
+                <div class="h-8 w-px bg-slate-800 hidden lg:block"></div>
+
+                <button onclick="toggleHelp()"
+                    class="hidden lg:flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all border border-slate-700">
+                    <span class="text-lg">💡</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Guia de Uso</span>
+                </button>
+
                 <nav class="flex gap-8">
-                    <button onclick="switchTab('matcher')" id="btn-matcher" class="tab-btn active">🔍 Comparador de Fórmulas</button>
-                    <button onclick="switchTab('simulator')" id="btn-simulator" class="tab-btn">🧪 Simulador de Propriedades</button>
+                    <button onclick="switchTab('matcher')" id="btn-matcher" class="tab-btn active">🔍 Comparador de
+                        Fórmulas</button>
+                    <button onclick="switchTab('simulator')" id="btn-simulator" class="tab-btn">🧪 Simulador de
+                        Propriedades</button>
                 </nav>
             </div>
-            
+
             <div class="flex items-center gap-6 bg-slate-950/50 p-2 px-4 rounded-xl border border-slate-800">
                 <div class="flex flex-col items-end">
                     <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Espessura Global</span>
                     <div class="flex items-baseline gap-1">
-                        <input type="number" id="globalMicra" value="40" oninput="calculateAll()" class="bg-transparent text-right w-14 text-sky-400 font-black mono text-xl outline-none border-b border-slate-700 focus:border-sky-500">
+                        <input type="number" id="globalMicra" value="40" oninput="calculateAll()"
+                            class="bg-transparent text-right w-14 text-sky-400 font-black mono text-xl outline-none border-b border-slate-700 focus:border-sky-500">
                         <span class="text-xs font-bold text-slate-400">µm</span>
                     </div>
                 </div>
@@ -204,7 +283,8 @@
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
                         <div id="db-indicator" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
-                        <span id="db-status" class="text-[10px] text-amber-500 font-black uppercase">Syncing DB...</span>
+                        <span id="db-status" class="text-[10px] text-amber-500 font-black uppercase">Syncing
+                            DB...</span>
                     </div>
                     <span class="text-[9px] text-slate-600 uppercase font-bold">ASTM D1709 / D882</span>
                 </div>
@@ -214,41 +294,121 @@
 
     <!-- CONTEÚDO DINÂMICO -->
     <main class="flex-1 overflow-hidden relative">
-        
+
+        <!-- PAINEL DE AJUDA / GUIA DE USO -->
+        <div id="help-panel"
+            class="hidden absolute inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl p-8 overflow-y-auto">
+            <div class="max-w-4xl mx-auto space-y-8 animate-slide-in">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Guia Rápido de Uso</h2>
+                    <button onclick="toggleHelp()"
+                        class="p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-full transition-all text-2xl leading-none">×</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-300">
+                    <div class="space-y-4">
+                        <div class="bg-sky-500/10 p-5 rounded-2xl border border-sky-500/20">
+                            <h3 class="font-black text-sky-400 uppercase text-xs tracking-widest mb-3">🔍 Comparador de
+                                Fórmulas</h3>
+                            <p class="text-sm leading-relaxed">Use para encontrar fórmulas existentes no banco que sejam
+                                similares a um <b>ID</b> ou <b>Produto</b> específico.</p>
+                            <ul class="text-[11px] mt-3 space-y-2 opacity-80">
+                                <li>• Insira o ID para ver a composição técnica da fórmula.</li>
+                                <li>• Use filtros para refinar a busca por portfólio.</li>
+                                <li>• Clique em <b>"Simular"</b> para levar os dados para o laboratório virtual.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20">
+                            <h3 class="font-black text-emerald-400 uppercase text-xs tracking-widest mb-3">🧪 Simulador
+                                de Propriedades</h3>
+                            <p class="text-sm leading-relaxed">Crie ou modifique estruturas do zero para prever COF,
+                                Dardo e resistência mecânica.</p>
+                            <ul class="text-[11px] mt-3 space-y-2 opacity-80">
+                                <li>• Arraste materiais da biblioteca para as roscas.</li>
+                                <li>• Use o 🔒 <b>Cadeado</b> para fixar um material como regra de busca.</li>
+                                <li>• Acompanhe os <b>Matches Instantâneos</b> no painel direito enquanto edita.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-black text-white text-[10px] uppercase tracking-widest mb-2">Significado dos
+                                Termos:</h4>
+                            <div class="space-y-3">
+                                <div class="bg-slate-900 p-3 rounded-lg border border-white/5">
+                                    <span class="text-sky-400 font-bold block text-xs">Similaridade de Resinas:</span>
+                                    <span class="text-[10px] opacity-70">Compara a base do polímero (PEAD, Metalo, etc)
+                                        e sua distribuição nas roscas.</span>
+                                </div>
+                                <div class="bg-slate-900 p-3 rounded-lg border border-white/5">
+                                    <span class="text-purple-400 font-bold block text-xs">Similaridade de Cor:</span>
+                                    <span class="text-[10px] opacity-70">Analisa especificamente a carga de pigmentos,
+                                        independente de onde estão aplicados.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl">
+                            <h4 class="font-black text-amber-500 text-[10px] uppercase tracking-widest mb-2">Dica de
+                                Especialista:</h4>
+                            <p class="text-[11px] italic opacity-80">"Materiais travados com o 🔒 <b>Cadeado</b> no
+                                simulador servem como filtro obrigatório. O sistema só mostrará fórmulas que contenham
+                                exatamente aquele material naquela proporção."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ABA 1: MATCHER (ANÁLISE DE SIMILARIDADE E PORTFÓLIO) -->
-        <section id="tab-matcher" class="absolute inset-0 flex flex-col lg:flex-row overflow-hidden transition-all duration-500">
-            
+        <section id="tab-matcher"
+            class="absolute inset-0 flex flex-col lg:flex-row overflow-hidden transition-all duration-500">
+
             <!-- SIDEBAR DE BUSCA -->
             <aside class="w-full lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 shadow-2xl z-10">
                 <div class="p-6 space-y-6 overflow-y-auto custom-scroll">
                     <div class="space-y-4">
-                        <h3 class="text-[10px] font-black text-sky-500 uppercase tracking-[0.2em] mb-4">Análise Técnica</h3>
-                        
+                        <h3 class="text-[10px] font-black text-sky-500 uppercase tracking-[0.2em] mb-4">Análise Técnica
+                        </h3>
+
                         <!-- Busca por ID -->
                         <div class="group">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">ID da Composição</label>
-                            <div class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-sky-500 transition-all">
-                                <input type="text" id="targetId" placeholder="Ex: 469" class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
-                                <button onclick="buscarPorId()" class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Analisar</button>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">ID da
+                                Composição</label>
+                            <div
+                                class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-sky-500 transition-all">
+                                <input type="text" id="targetId" placeholder="Ex: 469"
+                                    class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
+                                <button onclick="buscarPorId()"
+                                    class="bg-sky-600 hover:bg-sky-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Analisar</button>
                             </div>
                         </div>
-                        
+
                         <!-- Busca por Produto -->
                         <div class="group">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">Localizar por Produto</label>
-                            <div class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-emerald-500 transition-all">
-                                <input type="text" id="productSearch" list="productList" placeholder="Nome ou código..." class="bg-transparent px-3 py-2 text-sm outline-none w-full text-white">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">Localizar por
+                                Produto</label>
+                            <div
+                                class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-emerald-500 transition-all">
+                                <input type="text" id="productSearch" list="productList" placeholder="Nome ou código..."
+                                    class="bg-transparent px-3 py-2 text-sm outline-none w-full text-white">
                                 <datalist id="productList"></datalist>
-                                <button onclick="buscarPorProduto()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Localizar</button>
+                                <button onclick="buscarPorProduto()"
+                                    class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Localizar</button>
                             </div>
                         </div>
 
                         <!-- Consulta de Portfólio (V2) -->
                         <div class="group">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">Consultar Portfólio</label>
-                            <div class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-amber-500 transition-all">
-                                <input type="text" id="portfolioId" placeholder="ID Composição..." class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
-                                <button onclick="listarPortfolio()" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Listar</button>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block ml-1">Consultar
+                                Portfólio</label>
+                            <div
+                                class="flex bg-slate-950 rounded-lg border border-slate-700 p-1 group-focus-within:border-amber-500 transition-all">
+                                <input type="text" id="portfolioId" placeholder="ID Composição..."
+                                    class="bg-transparent px-3 py-2 text-sm outline-none w-full mono text-white">
+                                <button onclick="listarPortfolio()"
+                                    class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-md text-[10px] font-black uppercase transition-all">Listar</button>
                             </div>
                         </div>
                     </div>
@@ -260,18 +420,33 @@
 
                     <div id="matcher-welcome" class="text-center py-20 opacity-30">
                         <div class="text-5xl mb-4">🔍</div>
-                        <p class="text-xs font-bold uppercase tracking-widest leading-relaxed">Insira um ID ou Produto para<br>iniciar a análise de similaridade</p>
+                        <p class="text-xs font-bold uppercase tracking-widest leading-relaxed">Insira um ID ou Produto
+                            para<br>iniciar a análise de similaridade</p>
                     </div>
                 </div>
             </aside>
 
             <!-- ÁREA DE RESULTADOS MATCHER -->
             <section class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
-                <!-- Painel de Vetos (Filtros de Aditivos) -->
-                <div id="veto-panel" class="hidden p-4 bg-slate-900/50 border-b border-slate-800 flex items-center gap-4">
-                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest shrink-0">Ocultar Aditivos:</span>
-                    <div id="veto-chips" class="flex flex-wrap gap-2"></div>
-                    <button onclick="resetVetos()" class="text-[10px] text-sky-400 font-bold underline ml-auto hover:text-sky-300">Limpar Filtros</button>
+                <!-- Painel de Otimização de Ranking (V3) -->
+                <div id="ranking-panel"
+                    class="hidden p-4 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex flex-wrap items-center gap-4">
+                    <span
+                        class="text-[10px] font-black text-emerald-500 uppercase tracking-widest shrink-0 italic">Refinando
+                        resultados de acordo com o perfil técnico selecionado...</span>
+                    <div class="flex items-center gap-2 ml-4">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="ignore-adit" onchange="renderizarResultadosMatcher()"
+                                class="sr-only peer">
+                            <div
+                                class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600">
+                            </div>
+                        </label>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase">Ignorar Aditivos Funcionais</span>
+                    </div>
+                    <button onclick="resetPreferences()"
+                        class="text-[9px] text-slate-600 font-bold uppercase ml-auto hover:text-sky-400">Restaurar
+                        Padrão</button>
                 </div>
 
                 <div class="flex-1 overflow-y-auto p-8 custom-scroll">
@@ -283,15 +458,19 @@
         </section>
 
         <!-- ABA 2: SIMULADOR (PROPRIEDADES FÍSICAS COMPLETAS) -->
-        <section id="tab-simulator" class="absolute inset-0 hidden grid grid-cols-12 gap-4 p-4 overflow-hidden transition-all duration-500">
-            
+        <section id="tab-simulator"
+            class="absolute inset-0 hidden grid grid-cols-12 gap-4 p-4 overflow-hidden transition-all duration-500">
+
             <!-- COLUNA 1: BIBLIOTECA DE MATERIAIS -->
             <aside class="col-span-3 flex flex-col gap-3 h-full overflow-hidden">
                 <div class="card p-4 flex flex-col h-full">
                     <div class="mb-4">
-                        <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Resinas & Aditivos</h2>
+                        <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Resinas &
+                            Aditivos</h2>
                         <div class="relative">
-                            <input type="text" id="searchMat" placeholder="Filtrar biblioteca..." oninput="renderMaterialList()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white outline-none focus:border-sky-500 transition-all">
+                            <input type="text" id="searchMat" placeholder="Filtrar biblioteca..."
+                                oninput="renderMaterialList()"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white outline-none focus:border-sky-500 transition-all">
                             <div class="absolute right-3 top-3 text-slate-600">🔍</div>
                         </div>
                     </div>
@@ -307,17 +486,54 @@
                     <!-- Camadas renderizadas aqui -->
                 </div>
                 <div class="shrink-0">
-                    <button onclick="addRosca()" class="w-full py-4 border-2 border-dashed border-slate-700 rounded-xl text-slate-500 hover:border-sky-500 hover:text-sky-500 hover:bg-sky-500/5 transition-all font-black text-xs uppercase tracking-[0.3em]">+ Adicionar Nova Camada</button>
+                    <button onclick="addRosca()"
+                        class="w-full py-4 border-2 border-dashed border-slate-700 rounded-xl text-slate-500 hover:border-sky-500 hover:text-sky-500 hover:bg-sky-500/5 transition-all font-black text-xs uppercase tracking-[0.3em]">+
+                        Adicionar Nova Camada</button>
                 </div>
             </section>
 
-            <!-- COLUNA 3: DASHBOARD DE RESULTADOS (MECÂNICA COMPLETA) -->
+            <!-- COLUNA 3: DASHBOARD DE RESULTADOS & MATCHES -->
             <aside class="col-span-4 flex flex-col gap-4 h-full overflow-y-auto custom-scroll">
-                
+
+                <!-- CARD DE MATCHES DO SIMULADOR (PROFISSIONAL) -->
+                <div
+                    class="card p-5 border-t-4 border-t-sky-500 bg-gradient-to-br from-slate-900 to-slate-800 shadow-xl shadow-sky-900/20 mb-2">
+                    <div class="flex justify-between items-center mb-5">
+                        <div class="flex flex-col">
+                            <h2 class="text-[11px] font-black text-white uppercase tracking-widest leading-none">
+                                Fórmulas Sugeridas</h2>
+                            <span class="text-[8px] text-sky-400 font-bold uppercase mt-1">Busca no Banco de
+                                Dados</span>
+                        </div>
+                        <div class="px-2 py-1 bg-sky-500/10 border border-sky-500/20 rounded">
+                            <span
+                                class="text-[9px] text-sky-400 font-bold uppercase shrink-0 text-center">MATCHING</span>
+                        </div>
+                    </div>
+
+                    <div id="instant-matches-list" class="space-y-2 min-h-[140px] mb-6">
+                        <div class="py-12 text-center opacity-20">
+                            <div class="text-4xl mb-3">🔍</div>
+                            <p class="text-[9px] font-black uppercase tracking-[0.2em] leading-loose">Configure sua
+                                estrutura para<br>localizar fórmulas similares</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="matchFromSimulator()"
+                            class="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-lg shadow-sky-900/40 flex items-center justify-center gap-3">
+                            <span class="text-lg">🔎</span> BUSCAR RESINAS NO BANCO
+                        </button>
+                        <p class="text-[8px] text-center text-slate-500 font-bold uppercase tracking-widest">Materiais
+                            com 🔒 são tratados como obrigatórios</p>
+                    </div>
+                </div>
+
                 <!-- CARD SUPERFÍCIE (COF / PPM) -->
                 <div class="card p-5 border-t-4 border-t-emerald-500 bg-gradient-to-br from-slate-900 to-slate-800">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-[11px] font-black text-white uppercase tracking-widest">Desempenho de Superfície</h2>
+                        <h2 class="text-[11px] font-black text-white uppercase tracking-widest">Desempenho de Superfície
+                        </h2>
                         <div class="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded">
                             <span class="text-[9px] text-emerald-500 font-bold uppercase">Predictive COF</span>
                         </div>
@@ -325,7 +541,8 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-950/50 p-4 rounded-lg border border-slate-800">
-                            <span class="text-[9px] font-bold text-slate-500 uppercase block mb-1">PPM TOTAL (FILME)</span>
+                            <span class="text-[9px] font-bold text-slate-500 uppercase block mb-1">PPM TOTAL
+                                (FILME)</span>
                             <div class="flex items-baseline gap-2">
                                 <span id="resPpm" class="text-3xl font-black text-white mono">0</span>
                                 <span class="text-[10px] text-slate-600 font-bold">ppm</span>
@@ -336,44 +553,48 @@
                             <div id="resCof" class="text-2xl font-black text-emerald-400 mono">--</div>
                         </div>
                     </div>
-                    
+
                     <div class="mt-4 p-3 bg-black/20 rounded border border-white/5">
                         <div class="flex justify-between text-[10px] mb-1">
                             <span class="text-slate-500 font-bold uppercase">Status de Deslizamento:</span>
                             <span id="cof-status" class="text-white font-bold">--</span>
                         </div>
                         <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                            <div id="barCof" class="bg-emerald-500 h-full transition-all duration-700" style="width: 0%"></div>
+                            <div id="barCof" class="bg-emerald-500 h-full transition-all duration-700"
+                                style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- CARD MECÂNICA (RESTAURADO ALONGAMENTO V1) -->
+                <!-- CARD MECÂNICA -->
                 <div class="card p-5 border-t-4 border-t-sky-500">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-[11px] font-black text-white uppercase tracking-widest">Propriedades Mecânicas</h2>
+                        <h2 class="text-[11px] font-black text-white uppercase tracking-widest">Propriedades Mecânicas
+                        </h2>
                         <div class="flex items-center gap-2">
                             <span class="text-[9px] text-slate-500 uppercase font-bold">Densidade:</span>
                             <span id="resDensity" class="text-xs font-black text-sky-400 mono">--</span>
                         </div>
                     </div>
 
-                    <!-- DARDO -->
                     <div class="mb-6">
                         <div class="flex justify-between items-end mb-2">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resistência ao Impacto (Dardo)</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resistência ao
+                                Impacto (Dardo)</span>
                             <span id="resDart" class="text-3xl font-black text-white mono">--</span>
                         </div>
                         <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-                            <div id="barDart" class="bg-gradient-to-r from-sky-600 to-sky-400 h-full transition-all duration-1000" style="width: 0%"></div>
+                            <div id="barDart"
+                                class="bg-gradient-to-r from-sky-600 to-sky-400 h-full transition-all duration-1000"
+                                style="width: 0%"></div>
                         </div>
                     </div>
 
-                    <!-- TRAÇÃO, CARGA E ALONGAMENTO (RESTAURADO V1) -->
                     <div class="grid grid-cols-2 gap-3 mb-6">
-                        <!-- Direção Máquina -->
                         <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800">
-                            <div class="text-[9px] font-bold text-emerald-500 uppercase mb-2 border-b border-emerald-500/20 pb-1">Direção Máquina (MD)</div>
+                            <div
+                                class="text-[9px] font-bold text-emerald-500 uppercase mb-2 border-b border-emerald-500/20 pb-1">
+                                Direção Máquina (MD)</div>
                             <div class="space-y-1.5">
                                 <div class="flex justify-between items-center">
                                     <span class="text-[9px] text-slate-500">Tensão:</span>
@@ -389,9 +610,10 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Direção Transversal -->
                         <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800">
-                            <div class="text-[9px] font-bold text-amber-500 uppercase mb-2 border-b border-amber-500/20 pb-1">Direção Transv. (CD)</div>
+                            <div
+                                class="text-[9px] font-bold text-amber-500 uppercase mb-2 border-b border-amber-500/20 pb-1">
+                                Direção Transv. (CD)</div>
                             <div class="space-y-1.5">
                                 <div class="flex justify-between items-center">
                                     <span class="text-[9px] text-slate-500">Tensão:</span>
@@ -409,9 +631,10 @@
                         </div>
                     </div>
 
-                    <!-- FLUIDEZ -->
-                    <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fluidez Média (MFI)</span>
+                    <div
+                        class="bg-slate-950/50 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fluidez Média
+                            (MFI)</span>
                         <div class="flex items-baseline gap-1">
                             <span id="resMFI" class="text-lg font-black text-white mono">--</span>
                             <span class="text-[9px] text-slate-600 font-bold uppercase">g/10min</span>
@@ -421,7 +644,8 @@
 
                 <!-- RESUMO DA BLENDA -->
                 <div class="card p-4 bg-slate-900/50">
-                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Distribuição de Polímeros</h3>
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Distribuição de
+                        Polímeros</h3>
                     <div id="blendaSummary" class="grid grid-cols-2 gap-y-2 gap-x-4 text-[10px]">
                         <!-- Renderizado via JS -->
                     </div>
@@ -432,258 +656,262 @@
         </section>
     </main>
 
-<script>
-    /**
-     * =========================================================================
-     * 1. CONFIGURAÇÕES E BANCO DE DADOS TÉCNICO (RESIN_PROPS)
-     * =========================================================================
-     * O objeto RESIN_PROPS contém os parâmetros físicos médios de cada família
-     * de resina. Estes dados são usados para as simulações preditivas.
-     */
-    const FORMULAS_URL = 'https://andregazineu.github.io/Formula-Matcher/database_limpo_final.csv';
-    const PRODUTOS_URL = 'https://andregazineu.github.io/Formula-Matcher/RPCP372_produtos.csv';
+    <script>
+        /**
+         * =========================================================================
+         * 1. CONFIGURAÇÕES E BANCO DE DADOS TÉCNICO (RESIN_PROPS)
+         * =========================================================================
+         * O objeto RESIN_PROPS contém os parâmetros físicos médios de cada família
+         * de resina. Estes dados são usados para as simulações preditivas.
+         */
+        const FORMULAS_URL = 'https://andregazineu.github.io/Formula-Matcher/database_limpo_final.csv';
+        const PRODUTOS_URL = 'https://andregazineu.github.io/Formula-Matcher/RPCP372_produtos.csv';
 
-    const RESIN_PROPS = {
-    /* --- METALOCÊNICOS (NOMES EXATOS DO CSV) --- */
-    "PELBD METALOCENICO PROXESS 1806 S3": { dens: 0.918, mi: 0.60, dart: 410, tracMD: 30, tracCD: 20, elongMD: 620, elongCD: 850, ppm: 800 },
-    "PELBD METALOCENICO PROXESS 1809 PL14": { dens: 0.918, mi: 0.90, dart: 300, tracMD: 40, tracCD: 30, elongMD: 770, elongCD: 930, ppm: 0 },
-    "PELBD METALOCENICO PROXEES 2606": { dens: 0.918, mi: 0.60, dart: 450, tracMD: 35, tracCD: 25, elongMD: 650, elongCD: 880, ppm: 0 },
-    "PELBD ENABLE 2005 RE - EXCEED™ FLOW M 0520.RE": { dens: 0.920, mi: 0.50, dart: 378, tracMD: 60, tracCD: 55, elongMD: 480, elongCD: 710, ppm: 500 },
-    "ENABLE 3505 MC - EXCEED™ FLOW M 0535.MC": { dens: 0.935, mi: 0.50, dart: 126, tracMD: 60, tracCD: 50, elongMD: 550, elongCD: 810, ppm: 0 },
-    "PELBD ENABLE 4002 MC - EXCEED™ STIFF+ M 0238.MC": { dens: 0.940, mi: 0.25, dart: 95, tracMD: 70, tracCD: 60, elongMD: 490, elongCD: 810, ppm: 0 },
-    "PELBD FLEXUS 9211": { dens: 0.917, mi: 1.00, dart: 700, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
-    "PELBD FLEXUS 9212 XP": { dens: 0.918, mi: 1.00, dart: 650, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
-    "PELBD EXCEED 1018 RK - Exceed™ m 1018.RK": { dens: 0.918, mi: 1.00, dart: 900, tracMD: 38, tracCD: 30, elongMD: 700, elongCD: 900, ppm: 1000 },
-    "PELBD EXCEED 2012MK": { dens: 0.912, mi: 2.00, dart: 1086, tracMD: 65, tracCD: 60, elongMD: 560, elongCD: 610, ppm: 0 },
+        const RESIN_PROPS = {
+            /* --- METALOCÊNICOS (NOMES EXATOS DO CSV) --- */
+            "PELBD METALOCENICO PROXESS 1806 S3": { dens: 0.918, mi: 0.60, dart: 410, tracMD: 30, tracCD: 20, elongMD: 620, elongCD: 850, ppm: 800 },
+            "PELBD METALOCENICO PROXESS 1809 PL14": { dens: 0.918, mi: 0.90, dart: 300, tracMD: 40, tracCD: 30, elongMD: 770, elongCD: 930, ppm: 0 },
+            "PELBD METALOCENICO PROXEES 2606": { dens: 0.918, mi: 0.60, dart: 450, tracMD: 35, tracCD: 25, elongMD: 650, elongCD: 880, ppm: 0 },
+            "PELBD ENABLE 2005 RE - EXCEED™ FLOW M 0520.RE": { dens: 0.920, mi: 0.50, dart: 378, tracMD: 60, tracCD: 55, elongMD: 480, elongCD: 710, ppm: 500 },
+            "ENABLE 3505 MC - EXCEED™ FLOW M 0535.MC": { dens: 0.935, mi: 0.50, dart: 126, tracMD: 60, tracCD: 50, elongMD: 550, elongCD: 810, ppm: 0 },
+            "PELBD ENABLE 4002 MC - EXCEED™ STIFF+ M 0238.MC": { dens: 0.940, mi: 0.25, dart: 95, tracMD: 70, tracCD: 60, elongMD: 490, elongCD: 810, ppm: 0 },
+            "PELBD FLEXUS 9211": { dens: 0.917, mi: 1.00, dart: 700, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
+            "PELBD FLEXUS 9212 XP": { dens: 0.918, mi: 1.00, dart: 650, tracMD: 35, tracCD: 25, elongMD: 850, elongCD: 840, ppm: 1000 },
+            "PELBD EXCEED 1018 RK - Exceed™ m 1018.RK": { dens: 0.918, mi: 1.00, dart: 900, tracMD: 38, tracCD: 30, elongMD: 700, elongCD: 900, ppm: 1000 },
+            "PELBD EXCEED 2012MK": { dens: 0.912, mi: 2.00, dart: 1086, tracMD: 65, tracCD: 60, elongMD: 560, elongCD: 610, ppm: 0 },
 
-    /* --- LINEARES / BUTENOS / HEXENOS --- */
-    "PELBD HEXENO HF2208S3": { dens: 0.922, mi: 0.75, dart: 200, tracMD: 45, tracCD: 30, elongMD: 950, elongCD: 1150, ppm: 1200 },
-    "PELBD HF2007": { dens: 0.920, mi: 0.73, dart: 180, tracMD: 45, tracCD: 40, elongMD: 1260, elongCD: 1530, ppm: 0 },
-    "PELBD HF0131XP": { dens: 0.937, mi: 10.5, dart: 120, tracMD: 30, tracCD: 25, elongMD: 500, elongCD: 800, ppm: 0 },
-    "PELBD BUTENO LF 720/20": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 0 },
-    "PELBD BUTENO LF 720/21  C/ DESLIZANTE": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 1000 },
-    "POLIETILENO LINEAR BRASKEN PELBD LF 0720/21 AF": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 0 },
+            /* --- LINEARES / BUTENOS / HEXENOS --- */
+            "PELBD HEXENO HF2208S3": { dens: 0.922, mi: 0.75, dart: 200, tracMD: 45, tracCD: 30, elongMD: 950, elongCD: 1150, ppm: 1200 },
+            "PELBD HF2007": { dens: 0.920, mi: 0.73, dart: 180, tracMD: 45, tracCD: 40, elongMD: 1260, elongCD: 1530, ppm: 0 },
+            "PELBD HF0131XP": { dens: 0.937, mi: 10.5, dart: 120, tracMD: 30, tracCD: 25, elongMD: 500, elongCD: 800, ppm: 0 },
+            "PELBD BUTENO LF 720/20": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 0 },
+            "PELBD BUTENO LF 720/21  C/ DESLIZANTE": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 1000 },
+            "POLIETILENO LINEAR BRASKEN PELBD LF 0720/21 AF": { dens: 0.920, mi: 1.00, dart: 120, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 0 },
 
-    /* --- PEBD CONVENCIONAL E INDUSTRIAL --- */
-    "PEBD CONVENCIONAL EB 853/72": { dens: 0.923, mi: 2.70, dart: 80, tracMD: 25, tracCD: 20, elongMD: 350, elongCD: 1050, ppm: 800 },
-    "POLIETILENO BAIXA BRASKEN PEBD EB853/72": { dens: 0.923, mi: 2.70, dart: 80, tracMD: 25, tracCD: 20, elongMD: 350, elongCD: 1050, ppm: 800 },
-    "PEBD TS-9022": { dens: 0.931, mi: 2.20, dart: 100, tracMD: 20, tracCD: 15, elongMD: 350, elongCD: 950, ppm: 0 },
-    "PEBD INDUSTRIAL TX7001": { dens: 0.922, mi: 0.14, dart: 131, tracMD: 25, tracCD: 25, elongMD: 350, elongCD: 940, ppm: 0 },
-    "PEBD INDUSTRIAL TX7003": { dens: 0.922, mi: 0.27, dart: 131, tracMD: 20, tracCD: 20, elongMD: 380, elongCD: 910, ppm: 0 },
-    "PEBD INDUSTRIAL TX8079": { dens: 0.924, mi: 0.30, dart: 144, tracMD: 27, tracCD: 33, elongMD: 280, elongCD: 620, ppm: 0 },
+            /* --- PEBD CONVENCIONAL E INDUSTRIAL --- */
+            "PEBD CONVENCIONAL EB 853/72": { dens: 0.923, mi: 2.70, dart: 80, tracMD: 25, tracCD: 20, elongMD: 350, elongCD: 1050, ppm: 800 },
+            "POLIETILENO BAIXA BRASKEN PEBD EB853/72": { dens: 0.923, mi: 2.70, dart: 80, tracMD: 25, tracCD: 20, elongMD: 350, elongCD: 1050, ppm: 800 },
+            "PEBD TS-9022": { dens: 0.931, mi: 2.20, dart: 100, tracMD: 20, tracCD: 15, elongMD: 350, elongCD: 950, ppm: 0 },
+            "PEBD INDUSTRIAL TX7001": { dens: 0.922, mi: 0.14, dart: 131, tracMD: 25, tracCD: 25, elongMD: 350, elongCD: 940, ppm: 0 },
+            "PEBD INDUSTRIAL TX7003": { dens: 0.922, mi: 0.27, dart: 131, tracMD: 20, tracCD: 20, elongMD: 380, elongCD: 910, ppm: 0 },
+            "PEBD INDUSTRIAL TX8079": { dens: 0.924, mi: 0.30, dart: 144, tracMD: 27, tracCD: 33, elongMD: 280, elongCD: 620, ppm: 0 },
 
-    /* --- PEAD (ALTA DENSIDADE) --- */
-    "PEAD HE-150 PL14": { dens: 0.948, mi: 1.00, dart: 40, tracMD: 40, tracCD: 30, elongMD: 300, elongCD: 400, ppm: 0 },
-    "PEAD GF 4950": { dens: 0.956, mi: 0.36, dart: 30, tracMD: 30, tracCD: 25, elongMD: 100, elongCD: 200, ppm: 0 },
+            /* --- PEAD (ALTA DENSIDADE) --- */
+            "PEAD HE-150 PL14": { dens: 0.948, mi: 1.00, dart: 40, tracMD: 40, tracCD: 30, elongMD: 300, elongCD: 400, ppm: 0 },
+            "PEAD GF 4950": { dens: 0.956, mi: 0.36, dart: 30, tracMD: 30, tracCD: 25, elongMD: 100, elongCD: 200, ppm: 0 },
 
-    /* --- RECUPERADOS --- */
-    "PEBD REC. INDUSTRIAL CECRISA": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
-    "PEBD REC. CONVENCIONAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
-    "PEBD REC. BRANCO COMUM": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
-    "PEBD REC. INDUSTRIAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
-    "PEBD REC. SACARIA": { dens: 0.922, mi: 1.00, dart: 110, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 400 },
-    "PEBD REC. CINZA VIPAL-UNIQUE": { dens: 0.924, mi: 1.20, dart: 100, tracMD: 20, tracCD: 16, elongMD: 300, elongCD: 500, ppm: 400 },
-    "PEBD REC. VARREDURA": { dens: 0.928, mi: 2.00, dart: 70, tracMD: 15, tracCD: 10, elongMD: 150, elongCD: 300, ppm: 400 },
-    "PEBD REC. PRETO VIPAL": { dens: 0.924, mi: 1.20, dart: 100, tracMD: 20, tracCD: 16, elongMD: 300, elongCD: 500, ppm: 400 },
+            /* --- RECUPERADOS --- */
+            "PEBD REC. INDUSTRIAL CECRISA": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+            "PEBD REC. CONVENCIONAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+            "PEBD REC. BRANCO COMUM": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+            "PEBD REC. INDUSTRIAL": { dens: 0.925, mi: 1.50, dart: 90, tracMD: 18, tracCD: 14, elongMD: 250, elongCD: 400, ppm: 400 },
+            "PEBD REC. SACARIA": { dens: 0.922, mi: 1.00, dart: 110, tracMD: 22, tracCD: 18, elongMD: 400, elongCD: 600, ppm: 400 },
+            "PEBD REC. CINZA VIPAL-UNIQUE": { dens: 0.924, mi: 1.20, dart: 100, tracMD: 20, tracCD: 16, elongMD: 300, elongCD: 500, ppm: 400 },
+            "PEBD REC. VARREDURA": { dens: 0.928, mi: 2.00, dart: 70, tracMD: 15, tracCD: 10, elongMD: 150, elongCD: 300, ppm: 400 },
+            "PEBD REC. PRETO VIPAL": { dens: 0.924, mi: 1.20, dart: 100, tracMD: 20, tracCD: 16, elongMD: 300, elongCD: 500, ppm: 400 },
 
-    /* --- ADITIVOS E PIGMENTOS --- */
-    "ADIT. ANTI-BLOQUEIO 5009": { dens: 0.98, mi: 3.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-    "ADIT. ANTI-ESTATICO": { dens: 0.93, mi: 2.5, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-    "ADIT. AUXILIAR DE FLUXO": { dens: 0.91, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-    "ADIT. DESLIZANTE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 10000 },
-    "ADIT. DESLIZANTE 102109": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 10000 },
-    "ADIT. MASTER DESSECANTE": { dens: 1.20, mi: 5.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-    "ADIT. ANTI-OXIDANTE - AO 25A - VIPE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-    "ADIT. ANTIFIBRILANTE": { dens: 0.95, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-    "PIG. BRANCO PADRAO": { dens: 1.97, mi: 25.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
-    "PIG. PRETO PR 21694": { dens: 1.20, mi: 15.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+            /* --- ADITIVOS E PIGMENTOS --- */
+            "ADIT. ANTI-BLOQUEIO 5009": { dens: 0.98, mi: 3.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+            "ADIT. ANTI-ESTATICO": { dens: 0.93, mi: 2.5, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+            "ADIT. AUXILIAR DE FLUXO": { dens: 0.91, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+            "ADIT. DESLIZANTE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 10000 },
+            "ADIT. DESLIZANTE 102109": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 10000 },
+            "ADIT. MASTER DESSECANTE": { dens: 1.20, mi: 5.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+            "ADIT. ANTI-OXIDANTE - AO 25A - VIPE": { dens: 0.92, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+            "ADIT. ANTIFIBRILANTE": { dens: 0.95, mi: 2.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+            "PIG. BRANCO PADRAO": { dens: 1.97, mi: 25.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
+            "PIG. PRETO PR 21694": { dens: 1.20, mi: 15.0, dart: 0, tracMD: 0, tracCD: 0, elongMD: 0, elongCD: 0, ppm: 0 },
 
-    /* FALLBACK */
-    "DEFAULT": { dens: 0.920, mi: 1.00, dart: 100, tracMD: 20, tracCD: 20, elongMD: 400, elongCD: 600, ppm: 0 }
-};
+            /* FALLBACK */
+            "DEFAULT": { dens: 0.920, mi: 1.00, dart: 100, tracMD: 20, tracCD: 20, elongMD: 400, elongCD: 600, ppm: 0 }
+        };
 
-    /**
-     * =========================================================================
-     * 2. ESTADO GLOBAL DA APLICAÇÃO
-     * =========================================================================
-     */
-    let DB = {}; 
-    let PRODUTOS_DB = {}; 
-    let REVERSE_PROD_MAP = {}; 
-    let ALL_MATERIALS_SET = new Set(); 
-    
-    let CURRENT_RESULTS = []; 
-    let ACTIVE_VETOS = new Set(); 
-    
-    let formula = [
-        { id: 1, name: "Rosca A (Ext)", share: 25, materials: [] },
-        { id: 2, name: "Rosca B (Meio)", share: 50, materials: [] },
-        { id: 3, name: "Rosca C (Int)", share: 25, materials: [] }
-    ];
-    let activeRoscaIdx = 0;
+        /**
+         * =========================================================================
+         * 2. ESTADO GLOBAL DA APLICAÇÃO
+         * =========================================================================
+         */
+        let DB = {};
+        let PRODUTOS_DB = {};
+        let REVERSE_PROD_MAP = {};
+        let ALL_MATERIALS_SET = new Set();
 
-    /**
-     * =========================================================================
-     * 3. INICIALIZAÇÃO E CARREGAMENTO DE DADOS
-     * =========================================================================
-     */
-    window.onload = async () => {
-        try {
-            // 1. Carregar Banco de Produtos (Nomes Comerciais)
-            Papa.parse(PRODUTOS_URL, {
-                download: true, header: true, skipEmptyLines: true, delimiter: ";",
-                complete: (resProd) => {
-                    let currentCompID = null;
-                    resProd.data.forEach(row => {
-                        const values = Object.values(row).map(v => String(v || "").trim()).filter(v => v);
-                        values.forEach(text => {
-                            if (/^\d+\s*-\s*/.test(text)) {
-                                currentCompID = text.match(/^(\d+)/)[1].replace(/^0+/, '');
-                                if (!PRODUTOS_DB[currentCompID]) PRODUTOS_DB[currentCompID] = [];
-                            }
-                            else if (/^\d+\/\d+\s*-/.test(text) && currentCompID) {
-                                PRODUTOS_DB[currentCompID].push(text);
-                                REVERSE_PROD_MAP[text.toUpperCase()] = currentCompID;
-                                const option = document.createElement('option');
-                                option.value = text;
-                                document.getElementById('productList').appendChild(option);
+        let CURRENT_RESULTS = [];
+        let PREFERENCES = {
+            dnaWeight: 0.7,
+            baseWeight: 0.3,
+            ignoreFuncional: false
+        };
+
+        let formula = [
+            { id: 1, name: "Rosca A (Ext)", share: 25, materials: [] },
+            { id: 2, name: "Rosca B (Meio)", share: 50, materials: [] },
+            { id: 3, name: "Rosca C (Int)", share: 25, materials: [] }
+        ];
+        let activeRoscaIdx = 0;
+
+        /**
+         * =========================================================================
+         * 3. INICIALIZAÇÃO E CARREGAMENTO DE DADOS
+         * =========================================================================
+         */
+        window.onload = async () => {
+            try {
+                // 1. Carregar Banco de Produtos (Nomes Comerciais)
+                Papa.parse(PRODUTOS_URL, {
+                    download: true, header: true, skipEmptyLines: true, delimiter: ";",
+                    complete: (resProd) => {
+                        let currentCompID = null;
+                        resProd.data.forEach(row => {
+                            const values = Object.values(row).map(v => String(v || "").trim()).filter(v => v);
+                            values.forEach(text => {
+                                if (/^\d+\s*-\s*/.test(text)) {
+                                    currentCompID = text.match(/^(\d+)/)[1].replace(/^0+/, '');
+                                    if (!PRODUTOS_DB[currentCompID]) PRODUTOS_DB[currentCompID] = [];
+                                }
+                                else if (/^\d+\/\d+\s*-/.test(text) && currentCompID) {
+                                    PRODUTOS_DB[currentCompID].push(text);
+                                    REVERSE_PROD_MAP[text.toUpperCase()] = currentCompID;
+                                    const option = document.createElement('option');
+                                    option.value = text;
+                                    document.getElementById('productList').appendChild(option);
+                                }
+                            });
+                        });
+
+                        // 2. Carregar Banco de Fórmulas Técnicas
+                        Papa.parse(FORMULAS_URL, {
+                            download: true, header: true, dynamicTyping: true, skipEmptyLines: true, delimiter: ";",
+                            complete: (resForm) => {
+                                processarBancoFormulas(resForm.data);
+                                finalizarSetup();
                             }
                         });
-                    });
-                    
-                    // 2. Carregar Banco de Fórmulas Técnicas
-                    Papa.parse(FORMULAS_URL, {
-                        download: true, header: true, dynamicTyping: true, skipEmptyLines: true, delimiter: ";",
-                        complete: (resForm) => {
-                            processarBancoFormulas(resForm.data);
-                            finalizarSetup();
-                        }
-                    });
+                    }
+                });
+            } catch (e) {
+                console.error("Erro fatal no carregamento:", e);
+                document.getElementById('db-status').textContent = "Erro de Conexão";
+            }
+        };
+
+        function processarBancoFormulas(data) {
+            data.forEach(row => {
+                const id = String(row.ID_Composicao).trim().replace(/^0+/, '');
+                if (!id) return;
+
+                if (!DB[id]) {
+                    DB[id] = {
+                        id,
+                        nome: row.Nome_Composicao,
+                        vetorBase: {},
+                        vetorCor: {},
+                        aditivosMap: new Map(),
+                        itens: []
+                    };
                 }
+
+                const desc = String(row.Descricao_Material || "").toUpperCase().replace(/"/g, '').trim();
+                if (!desc || desc.includes('TUBETE')) return;
+
+                ALL_MATERIALS_SET.add(desc);
+
+                const tipo = desc.startsWith('PIG.') ? 'PIG' : (desc.startsWith('ADIT.') ? 'ADIT' : 'BASE');
+                const chaveVetor = `${row.Grupo_Rosca}_${row.Cod_Material}`;
+                const qtdF = row.Qtd_Corrigida_No_Filme || 0;
+                const qtdR = row.Qtd_Original_Na_Rosca || 0;
+
+                // Vetores para cálculo de similaridade (Cosseno)
+                if (tipo === 'BASE') DB[id].vetorBase[chaveVetor] = (DB[id].vetorBase[chaveVetor] || 0) + qtdF;
+                if (tipo === 'PIG') DB[id].vetorCor[chaveVetor] = (DB[id].vetorCor[chaveVetor] || 0) + qtdF;
+
+                // Mapa de aditivos para auditoria de diferenças
+                if (tipo !== 'BASE') {
+                    const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
+                    DB[id].aditivosMap.set(`${row.Grupo_Rosca}: ${nomeLimpo}`, qtdR);
+                }
+
+                DB[id].itens.push({
+                    desc,
+                    tipo,
+                    rosca: row.Grupo_Rosca,
+                    percRosca: row.Percentual_Rosca,
+                    qtd: qtdR
+                });
             });
-        } catch (e) {
-            console.error("Erro fatal no carregamento:", e);
-            document.getElementById('db-status').textContent = "Erro de Conexão";
         }
-    };
 
-    function processarBancoFormulas(data) {
-        data.forEach(row => {
-            const id = String(row.ID_Composicao).trim().replace(/^0+/, '');
-            if (!id) return;
+        function finalizarSetup() {
+            const indicator = document.getElementById('db-indicator');
+            const status = document.getElementById('db-status');
+            indicator.classList.replace('bg-amber-500', 'bg-emerald-500');
+            indicator.classList.remove('animate-pulse');
+            status.textContent = "DB Online";
+            status.classList.replace('text-amber-500', 'text-emerald-500');
 
-            if (!DB[id]) {
-                DB[id] = { 
-                    id, 
-                    nome: row.Nome_Composicao, 
-                    vetorBase: {}, 
-                    vetorCor: {}, 
-                    aditivosMap: new Map(), 
-                    itens: [] 
-                };
+            renderMaterialList();
+            renderRoscas();
+            calculateAll();
+        }
+
+        /**
+         * =========================================================================
+         * 4. NAVEGAÇÃO E INTERFACE (UI)
+         * =========================================================================
+         */
+        function switchTab(tab) {
+            const tMatcher = document.getElementById('tab-matcher');
+            const tSimulator = document.getElementById('tab-simulator');
+            const bMatcher = document.getElementById('btn-matcher');
+            const bSimulator = document.getElementById('btn-simulator');
+
+            if (tab === 'matcher') {
+                tMatcher.classList.remove('hidden');
+                tSimulator.classList.add('hidden');
+                bMatcher.classList.add('active');
+                bSimulator.classList.remove('active');
+            } else {
+                tMatcher.classList.add('hidden');
+                tSimulator.classList.remove('hidden');
+                bSimulator.classList.add('active');
+                bMatcher.classList.remove('active');
             }
-            
-            const desc = String(row.Descricao_Material || "").toUpperCase().replace(/"/g, '').trim();
-            if (!desc || desc.includes('TUBETE')) return;
-            
-            ALL_MATERIALS_SET.add(desc);
-            
-            const tipo = desc.startsWith('PIG.') ? 'PIG' : (desc.startsWith('ADIT.') ? 'ADIT' : 'BASE');
-            const chaveVetor = `${row.Grupo_Rosca}_${row.Cod_Material}`;
-            const qtdF = row.Qtd_Corrigida_No_Filme || 0;
-            const qtdR = row.Qtd_Original_Na_Rosca || 0;
-
-            // Vetores para cálculo de similaridade (Cosseno)
-            if (tipo === 'BASE') DB[id].vetorBase[chaveVetor] = (DB[id].vetorBase[chaveVetor] || 0) + qtdF;
-            if (tipo === 'PIG') DB[id].vetorCor[chaveVetor] = (DB[id].vetorCor[chaveVetor] || 0) + qtdF;
-            
-            // Mapa de aditivos para auditoria de diferenças
-            if (tipo !== 'BASE') {
-                const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
-                DB[id].aditivosMap.set(`${row.Grupo_Rosca}: ${nomeLimpo}`, qtdR);
-            }
-            
-            DB[id].itens.push({ 
-                desc, 
-                tipo, 
-                rosca: row.Grupo_Rosca, 
-                percRosca: row.Percentual_Rosca, 
-                qtd: qtdR 
-            });
-        });
-    }
-
-    function finalizarSetup() {
-        const indicator = document.getElementById('db-indicator');
-        const status = document.getElementById('db-status');
-        indicator.classList.replace('bg-amber-500', 'bg-emerald-500');
-        indicator.classList.remove('animate-pulse');
-        status.textContent = "DB Online";
-        status.classList.replace('text-amber-500', 'text-emerald-500');
-        
-        renderMaterialList();
-        renderRoscas();
-        calculateAll();
-    }
-
-    /**
-     * =========================================================================
-     * 4. NAVEGAÇÃO E INTERFACE (UI)
-     * =========================================================================
-     */
-    function switchTab(tab) {
-        const tMatcher = document.getElementById('tab-matcher');
-        const tSimulator = document.getElementById('tab-simulator');
-        const bMatcher = document.getElementById('btn-matcher');
-        const bSimulator = document.getElementById('btn-simulator');
-
-        if (tab === 'matcher') {
-            tMatcher.classList.remove('hidden');
-            tSimulator.classList.add('hidden');
-            bMatcher.classList.add('active');
-            bSimulator.classList.remove('active');
-        } else {
-            tMatcher.classList.add('hidden');
-            tSimulator.classList.remove('hidden');
-            bSimulator.classList.add('active');
-            bMatcher.classList.remove('active');
         }
-    }
 
-    /**
-     * =========================================================================
-     * 5. LÓGICA MATCHER (SIMILARIDADE E PORTFÓLIO)
-     * =========================================================================
-     */
-    function buscarPorId() {
-        const id = document.getElementById('targetId').value.trim().replace(/^0+/, '');
-        if (!DB[id]) return alert("ID não localizado no banco de dados.");
-        executarAnaliseSimilaridade(id);
-    }
-
-    function buscarPorProduto() {
-        const input = document.getElementById('productSearch').value.trim().toUpperCase();
-        if (!input) return;
-        let id = REVERSE_PROD_MAP[input];
-        if (!id) {
-            const foundKey = Object.keys(REVERSE_PROD_MAP).find(k => k.includes(input));
-            if (foundKey) id = REVERSE_PROD_MAP[foundKey];
-        }
-        if (id) {
-            document.getElementById('targetId').value = id;
+        /**
+         * =========================================================================
+         * 5. LÓGICA MATCHER (SIMILARIDADE E PORTFÓLIO)
+         * =========================================================================
+         */
+        function buscarPorId() {
+            const id = document.getElementById('targetId').value.trim().replace(/^0+/, '');
+            if (!DB[id]) return alert("ID não localizado no banco de dados.");
             executarAnaliseSimilaridade(id);
-        } else {
-            alert("Produto não localizado.");
         }
-    }
 
-    function listarPortfolio() {
-        const id = document.getElementById('portfolioId').value.trim().replace(/^0+/, '');
-        if (!PRODUTOS_DB[id]) return alert("Nenhum produto vinculado a este ID.");
-        
-        const listContainer = document.getElementById('results-list');
-        document.getElementById('veto-panel').classList.add('hidden');
-        listContainer.innerHTML = `
+        function buscarPorProduto() {
+            const input = document.getElementById('productSearch').value.trim().toUpperCase();
+            if (!input) return;
+            let id = REVERSE_PROD_MAP[input];
+            if (!id) {
+                const foundKey = Object.keys(REVERSE_PROD_MAP).find(k => k.includes(input));
+                if (foundKey) id = REVERSE_PROD_MAP[foundKey];
+            }
+            if (id) {
+                document.getElementById('targetId').value = id;
+                executarAnaliseSimilaridade(id);
+            } else {
+                alert("Produto não localizado.");
+            }
+        }
+
+        function listarPortfolio() {
+            const id = document.getElementById('portfolioId').value.trim().replace(/^0+/, '');
+            if (!PRODUTOS_DB[id]) return alert("Nenhum produto vinculado a este ID.");
+
+            const listContainer = document.getElementById('results-list');
+            document.getElementById('veto-panel').classList.add('hidden');
+            listContainer.innerHTML = `
             <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-2xl mb-6 animate-slide-in">
                 <h3 class="text-amber-400 font-bold uppercase text-xs tracking-widest mb-4">Portfólio Vinculado ao ID ${id}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -691,37 +919,70 @@
                 </div>
             </div>
         `;
-    }
+        }
 
-    function executarAnaliseSimilaridade(id) {
-        const alvo = DB[id];
-        renderAlvoNoMatcher(alvo);
-        document.getElementById('matcher-welcome').classList.add('hidden');
-        document.getElementById('target-display-area').classList.remove('hidden');
-        document.getElementById('veto-panel').classList.remove('hidden');
-        
-        ACTIVE_VETOS.clear();
-        
-        // Lógica de Cor (Restaurado V1): Se o alvo tem cor, filtramos candidatos sem cor
-        const alvoTemCor = Object.keys(alvo.vetorCor).length > 0;
-        
-        const lista = [];
+        function togglePreference(mode) {
+            const btnDna = document.getElementById('pref-dna');
+            const btnBase = document.getElementById('pref-base');
 
-        Object.values(DB).forEach(cand => {
-            if (cand.id === id) return;
-            
-            const candTemCor = Object.keys(cand.vetorCor).length > 0;
-            
-            // Filtro de Cor Inteligente (V1):
-            if (alvoTemCor !== candTemCor) return; // Se um tem cor e o outro não, ignora
-            if (alvoTemCor && calcularCosseno(alvo.vetorCor, cand.vetorCor) < 0.7) return; // Se ambos tem cor, devem ser similares
+            if (mode === 'dna') {
+                PREFERENCES.dnaWeight = 0.8;
+                PREFERENCES.baseWeight = 0.2;
+                btnDna.className = "px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all bg-sky-600 text-white";
+                btnBase.className = "px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all text-slate-500 hover:text-white";
+            } else {
+                PREFERENCES.dnaWeight = 0.2;
+                PREFERENCES.baseWeight = 0.8;
+                btnDna.className = "px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all text-slate-500 hover:text-white";
+                btnBase.className = "px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all bg-emerald-600 text-white";
+            }
+            renderizarResultadosMatcher();
+        }
 
-            const score = calcularCosseno(alvo.vetorBase, cand.vetorBase);
-            
-            if (score > 0.4) {
+        function resetPreferences() {
+            PREFERENCES.dnaWeight = 0.7;
+            PREFERENCES.baseWeight = 0.3;
+            document.getElementById('ignore-adit').checked = false;
+            const btnDna = document.getElementById('pref-dna');
+            const btnBase = document.getElementById('pref-base');
+            btnDna.className = "px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all bg-sky-600 text-white";
+            btnBase.className = "px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all text-slate-500 hover:text-white";
+            renderizarResultadosMatcher();
+        }
+
+        function executarAnaliseSimilaridade(id) {
+            const alvo = DB[id];
+            renderAlvoNoMatcher(alvo);
+            document.getElementById('matcher-welcome').classList.add('hidden');
+            document.getElementById('target-display-area').classList.remove('hidden');
+            document.getElementById('ranking-panel').classList.remove('hidden');
+
+            const lista = [];
+
+            // Criar vetores de "DNA de Cor" (Independente de Rosca)
+            const dnaCorAlvo = {};
+            // Precisamos iterar sobre itens para pegar o material do pigmento de forma global
+            alvo.itens.filter(it => it.tipo === 'PIG').forEach(it => {
+                const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
+                dnaCorAlvo[codLimpo] = (dnaCorAlvo[codLimpo] || 0) + it.qtd;
+            });
+
+            Object.values(DB).forEach(cand => {
+                if (cand.id === id) return;
+
+                // Similaridade de Resina (Estrutural) - Baseada no vetorBase original que segue rosca
+                const simBase = calcularCosseno(alvo.vetorBase, cand.vetorBase);
+
+                // Similaridade de DNA de Cor Global
+                const dnaCorCand = {};
+                cand.itens.filter(it => it.tipo === 'PIG').forEach(it => {
+                    const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
+                    dnaCorCand[codLimpo] = (dnaCorCand[codLimpo] || 0) + it.qtd;
+                });
+
+                const simCor = calcularCosseno(dnaCorAlvo, dnaCorCand);
+
                 const extras = [], faltas = [], divergencias = [];
-                
-                // Auditoria de Aditivos (V2)
                 cand.aditivosMap.forEach((qtdC, nome) => {
                     if (!alvo.aditivosMap.has(nome)) {
                         extras.push({ nome, qtd: qtdC });
@@ -732,36 +993,34 @@
                         }
                     }
                 });
-
                 alvo.aditivosMap.forEach((_, nome) => {
                     if (!cand.aditivosMap.has(nome)) faltas.push(nome);
                 });
 
-                lista.push({ ...cand, score, extras, faltas, divergencias });
-            }
-        });
+                lista.push({ ...cand, simBase, simCor, extras, faltas, divergencias });
+            });
 
-        CURRENT_RESULTS = lista.sort((a, b) => b.score - a.score);
-        renderizarResultadosMatcher();
-    }
+            CURRENT_RESULTS = lista;
+            renderizarResultadosMatcher();
+        }
 
-    function calcularCosseno(v1, v2) {
-        let dot = 0, m1 = 0, m2 = 0;
-        const keys = new Set([...Object.keys(v1), ...Object.keys(v2)]);
-        keys.forEach(k => {
-            const a = v1[k] || 0;
-            const b = v2[k] || 0;
-            dot += a * b;
-            m1 += a * a;
-            m2 += b * b;
-        });
-        return (m1 && m2) ? dot / (Math.sqrt(m1) * Math.sqrt(m2)) : (m1 === m2 ? 1 : 0);
-    }
+        function calcularCosseno(v1, v2) {
+            let dot = 0, m1 = 0, m2 = 0;
+            const keys = new Set([...Object.keys(v1), ...Object.keys(v2)]);
+            keys.forEach(k => {
+                const a = v1[k] || 0;
+                const b = v2[k] || 0;
+                dot += a * b;
+                m1 += a * a;
+                m2 += b * b;
+            });
+            return (m1 && m2) ? dot / (Math.sqrt(m1) * Math.sqrt(m2)) : (m1 === m2 ? 1 : 0);
+        }
 
-    function renderAlvoNoMatcher(alvo) {
-        const prods = PRODUTOS_DB[alvo.id] || [];
-        const area = document.getElementById('target-display-area');
-        area.innerHTML = `
+        function renderAlvoNoMatcher(alvo) {
+            const prods = PRODUTOS_DB[alvo.id] || [];
+            const area = document.getElementById('target-display-area');
+            area.innerHTML = `
             <div class="card p-4 rounded-xl border-sky-500/30 bg-sky-500/5">
                 <h2 class="font-black text-white text-sm leading-tight mb-1">${alvo.nome}</h2>
                 <div class="flex justify-between items-center">
@@ -776,85 +1035,122 @@
                 ${renderizarItensEstrutura(alvo.itens)}
             </div>
         `;
-    }
+        }
 
-    function renderizarResultadosMatcher() {
-        const vetoContainer = document.getElementById('veto-chips');
-        const listContainer = document.getElementById('results-list');
-        vetoContainer.innerHTML = '';
-        listContainer.innerHTML = '';
+        function renderizarResultadosMatcher() {
+            const listContainer = document.getElementById('results-list');
+            const ignoreFuncional = document.getElementById('ignore-adit').checked;
+            listContainer.innerHTML = '';
 
-        const extrasCount = new Map();
-        const visiveis = CURRENT_RESULTS.filter(c => {
-            const bloqueado = c.extras.some(e => ACTIVE_VETOS.has(e.nome));
-            if (!bloqueado) {
-                c.extras.forEach(e => extrasCount.set(e.nome, (extrasCount.get(e.nome) || 0) + 1));
-            }
-            return !bloqueado;
-        });
+            const targetId = document.getElementById('targetId').value.trim().replace(/^0+/, '');
+            const alvo = DB[targetId];
 
-        extrasCount.forEach((count, nome) => {
-            const btn = document.createElement('button');
-            btn.className = "text-[9px] px-3 py-1 rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:border-sky-500 transition-all font-bold";
-            btn.innerHTML = `${nome.split(': ')[1]} <span class="text-sky-500 ml-1">${count}</span>`;
-            btn.onclick = () => { ACTIVE_VETOS.add(nome); renderizarResultadosMatcher(); };
-            vetoContainer.appendChild(btn);
-        });
+            let resultadosProcessados = CURRENT_RESULTS.map(c => {
+                const alvoTemCor = Object.keys(alvo.vetorCor).length > 0;
+                const candTemCor = Object.keys(c.vetorCor).length > 0;
 
-        visiveis.slice(0, 20).forEach(c => {
-            const card = document.createElement('div');
-            card.className = "card p-6 rounded-2xl group hover:border-sky-500/50 transition-all animate-slide-in";
-            
-            let auditHtml = '';
-            if (c.extras.length === 0 && c.faltas.length === 0 && c.divergencias.length === 0) {
-                auditHtml = `<div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg text-[10px] font-black text-emerald-400 mb-4 uppercase tracking-widest">Dosagens Idênticas</div>`;
-            } else {
-                auditHtml = `<div class="bg-slate-950/50 p-3 rounded-lg text-[10px] space-y-1.5 mb-4 border border-slate-800">`;
-                c.divergencias.forEach(d => auditHtml += `<div class="text-sky-400 flex justify-between"><span>• ${d.nome}:</span><span class="font-bold">${d.diff > 0 ? '+' : ''}${d.diff.toFixed(2)}%</span></div>`);
-                c.extras.forEach(e => auditHtml += `<div class="text-amber-400 flex justify-between"><span>• EXTRA: ${e.nome}</span><span class="font-bold">${e.qtd.toFixed(2)}%</span></div>`);
-                c.faltas.forEach(f => auditHtml += `<div class="text-red-400">• FALTA: ${f}</div>`);
-                auditHtml += `</div>`;
-            }
+                let finalScore;
+                if (!alvoTemCor && !candTemCor) {
+                    finalScore = c.simBase;
+                } else {
+                    finalScore = (c.simCor * PREFERENCES.dnaWeight) + (c.simBase * PREFERENCES.baseWeight);
+                }
 
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex-1 pr-4">
-                        <h3 class="font-black text-white text-lg leading-tight group-hover:text-sky-400 transition-colors">${c.nome}</h3>
-                        <span class="text-[10px] mono text-slate-500 font-bold uppercase">ID: ${c.id}</span>
-                    </div>
-                    <div class="text-right shrink-0">
-                        <div class="text-4xl font-black text-sky-500 tracking-tighter">${(c.score * 100).toFixed(1)}%</div>
-                        <div class="text-[8px] uppercase text-slate-500 font-black tracking-widest">Similaridade</div>
-                    </div>
-                </div>
-                ${auditHtml}
-                <div class="flex gap-3">
-                    <button onclick="carregarNoSimulador('${c.id}')" class="flex-1 bg-slate-800 hover:bg-sky-600 text-white text-[10px] font-black py-2 rounded-lg transition-all uppercase tracking-widest">Simular</button>
-                    <details class="flex-[2]">
-                        <summary class="w-full bg-slate-900 hover:bg-slate-800 text-slate-400 text-[10px] font-black py-2 rounded-lg transition-all uppercase tracking-widest text-center cursor-pointer">Ver Estrutura</summary>
-                        <div class="mt-4 p-4 bg-black/20 rounded-xl border border-white/5">
-                            ${renderizarItensEstrutura(c.itens)}
+                return { ...c, finalScore };
+            });
+
+            resultadosProcessados
+                .sort((a, b) => b.finalScore - a.finalScore)
+                .slice(0, 20)
+                .forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = "card p-6 rounded-2xl group hover:border-sky-500/50 transition-all animate-slide-in relative overflow-hidden";
+
+                    const corMatch = c.simCor > 0.99 ? 'PERFEITO' : (c.simCor > 0.8 ? 'ALTA' : (c.simCor > 0 ? 'PARCIAL' : 'DIFERENTE'));
+                    const corColor = c.simCor > 0.8 ? 'text-emerald-400' : (c.simCor > 0 ? 'text-amber-400' : 'text-slate-500');
+
+                    card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1 pr-4">
+                            <h3 class="font-black text-white text-lg leading-tight group-hover:text-sky-400 transition-colors">${c.nome}</h3>
+                            <div class="flex gap-4 mt-2">
+                                <div class="flex flex-col">
+                                    <span class="text-[8px] uppercase text-slate-500 font-bold">Similaridade de Cor</span>
+                                    <span class="text-[10px] font-black ${corColor}">${corMatch} (${(c.simCor * 100).toFixed(0)}%)</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[8px] uppercase text-slate-500 font-bold">Similaridade de Resinas</span>
+                                    <span class="text-[10px] font-black text-sky-400">${(c.simBase * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
                         </div>
-                    </details>
-                </div>
-            `;
-            listContainer.appendChild(card);
-        });
-    }
+                        <div class="text-right shrink-0">
+                            <div class="text-xs font-bold text-slate-600 mb-1 mono">ID: ${c.id}</div>
+                            <div class="text-4xl font-black text-sky-500 tracking-tighter">${(c.finalScore * 100).toFixed(1)}%</div>
+                            <div class="text-[8px] uppercase text-slate-500 font-black tracking-widest text-center">Score Global</div>
+                        </div>
+                    </div>
 
-    function renderizarItensEstrutura(itens) {
-        const grupos = itens.reduce((acc, i) => {
-            if (!acc[i.rosca]) acc[i.rosca] = { p: i.percRosca, h: [] };
-            const cor = i.tipo === 'BASE' ? 'text-sky-400' : (i.tipo === 'PIG' ? 'text-purple-400' : 'text-amber-400');
-            acc[i.rosca].h.push(`
+                    <div class="flex h-1.5 w-full bg-slate-800 rounded-full overflow-hidden mb-6">
+                        <div style="width: ${c.simCor * 100}%" class="bg-purple-500 h-full"></div>
+                        <div style="width: ${c.simBase * 100}%" class="bg-sky-500 h-full opacity-50"></div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex gap-3">
+                            <button onclick="carregarNoSimulador('${c.id}')" class="flex-1 bg-sky-600/10 hover:bg-sky-600 text-sky-400 hover:text-white text-[10px] font-black py-2 rounded-lg border border-sky-500/20 transition-all uppercase tracking-widest">🧪 Simular</button>
+                            <details class="flex group/det flex-[2]">
+                                <summary class="w-full bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-400 text-[10px] font-black py-2 rounded-lg transition-all uppercase tracking-widest text-center cursor-pointer list-none">Ver DNA Técnico</summary>
+                                <div class="mt-4 p-4 bg-black/40 rounded-xl border border-white/5 space-y-4">
+                                    <div class="text-[9px] font-bold text-slate-500 uppercase border-b border-slate-700 pb-1">Diferenças Técnicas</div>
+                                    ${renderizarAuditVisivel(c, ignoreFuncional)}
+                                    <div class="text-[9px] font-bold text-slate-500 uppercase border-b border-slate-700 pb-1 mt-4">Composição por Camada</div>
+                                    ${renderizarItensEstrutura(c.itens)}
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                `;
+                    listContainer.appendChild(card);
+                });
+        }
+
+        function renderizarAuditVisivel(c, ignoreFuncional) {
+            let items = [];
+
+            c.divergencias.forEach(d => {
+                const isAdit = d.nome.includes('ADIT.');
+                if (ignoreFuncional && isAdit) return;
+                items.push(`<div class="text-sky-400 flex justify-between"><span>• ${d.nome.split(': ')[1]}:</span><span class="font-bold">${d.diff > 0 ? '+' : ''}${d.diff.toFixed(2)}%</span></div>`);
+            });
+            c.extras.forEach(e => {
+                const isAdit = e.nome.includes('ADIT.');
+                if (ignoreFuncional && isAdit) return;
+                items.push(`<div class="text-amber-400 flex justify-between"><span>• EXTRA: ${e.nome.split(': ')[1]}</span><span class="font-bold">${e.qtd.toFixed(2)}%</span></div>`);
+            });
+            c.faltas.forEach(f => {
+                const isAdit = f.includes('ADIT.');
+                if (ignoreFuncional && isAdit) return;
+                items.push(`<div class="text-red-400">• FALTA: ${f.split(': ')[1]}</div>`);
+            });
+
+            return items.length === 0 ? '<div class="text-[9px] text-emerald-500 font-bold uppercase">Dosagens Equivalentes</div>' : `<div class="text-[10px] space-y-1">${items.join('')}</div>`;
+        }
+
+        function renderizarItensEstrutura(itens) {
+            const grupos = itens.reduce((acc, i) => {
+                if (!acc[i.rosca]) acc[i.rosca] = { p: i.percRosca, h: [] };
+                const cor = i.tipo === 'BASE' ? 'text-sky-400' : (i.tipo === 'PIG' ? 'text-purple-400' : 'text-amber-400');
+                const lockIcon = i.locked ? '<span class="text-amber-500 ml-1">🔒</span>' : '';
+                acc[i.rosca].h.push(`
                 <div class="flex justify-between text-[10px] py-1.5 border-b border-white/5">
-                    <span class="truncate ${cor} font-medium">${i.desc}</span>
+                    <span class="truncate ${cor} font-medium">${i.desc}${lockIcon}</span>
                     <span class="mono ml-2 text-slate-400 font-bold">${i.qtd.toFixed(2)}%</span>
                 </div>`);
-            return acc;
-        }, {});
-        
-        return Object.keys(grupos).sort().map(r => `
+                return acc;
+            }, {});
+
+            return Object.keys(grupos).sort().map(r => `
             <div class="mb-4">
                 <div class="flex justify-between text-[9px] font-black text-slate-600 uppercase mb-1 tracking-widest">
                     <span>${r}</span>
@@ -862,99 +1158,104 @@
                 </div>
                 ${grupos[r].h.join('')}
             </div>`).join('');
-    }
+        }
 
-    function resetVetos() { ACTIVE_VETOS.clear(); renderizarResultadosMatcher(); }
+        function resetVetos() { ACTIVE_VETOS.clear(); renderizarResultadosMatcher(); }
 
-    /**
-     * =========================================================================
-     * 6. LÓGICA SIMULADOR (FÍSICA, PPM E COF)
-     * =========================================================================
-     */
-    function carregarNoSimulador(id) {
-        const alvo = DB[id];
-        if (!alvo) return;
+        /**
+         * =========================================================================
+         * 6. LÓGICA SIMULADOR (FÍSICA, PPM E COF)
+         * =========================================================================
+         */
+        function carregarNoSimulador(id) {
+            const alvo = DB[id];
+            if (!alvo) return;
 
-        const roscasMap = {};
-        alvo.itens.forEach(it => {
-            if (!roscasMap[it.rosca]) roscasMap[it.rosca] = { share: it.percRosca, materials: [] };
-            const p = getProps(it.desc);
-            roscasMap[it.rosca].materials.push({ name: it.desc, pct: it.qtd, ppm: p.ppm });
-        });
+            const roscasMap = {};
+            alvo.itens.forEach(it => {
+                if (!roscasMap[it.rosca]) roscasMap[it.rosca] = { share: it.percRosca, materials: [] };
+                const p = getProps(it.desc);
+                roscasMap[it.rosca].materials.push({ name: it.desc, pct: it.qtd, ppm: p.ppm });
+            });
 
-        formula = Object.keys(roscasMap).sort().map((rName, idx) => ({
-            id: idx + 1,
-            name: rName,
-            share: roscasMap[rName].share,
-            materials: roscasMap[rName].materials
-        }));
+            formula = Object.keys(roscasMap).sort().map((rName, idx) => ({
+                id: idx + 1,
+                name: rName,
+                share: roscasMap[rName].share,
+                materials: roscasMap[rName].materials
+            }));
 
-        activeRoscaIdx = 0;
-        renderRoscas();
-        calculateAll();
-        switchTab('simulator');
-    }
+            activeRoscaIdx = 0;
+            renderRoscas();
+            calculateAll();
+            switchTab('simulator');
+        }
 
-    function renderMaterialList() {
-        const container = document.getElementById('materialList');
-        const search = document.getElementById('searchMat').value.toUpperCase();
-        const filtered = Array.from(ALL_MATERIALS_SET).filter(m => m.includes(search)).sort();
-        
-        container.innerHTML = filtered.map(name => {
-            const p = getProps(name);
-            const ppmTag = p.ppm > 0 ? `<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">${p.ppm} PPM</span>` : '';
-            return `
+        function renderMaterialList() {
+            const container = document.getElementById('materialList');
+            const search = document.getElementById('searchMat').value.toUpperCase();
+            const filtered = Array.from(ALL_MATERIALS_SET).filter(m => m.includes(search)).sort();
+
+            container.innerHTML = filtered.map(name => {
+                const p = getProps(name);
+                const ppmTag = p.ppm > 0 ? `<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">${p.ppm} PPM</span>` : '';
+                return `
                 <div onclick="addMaterialToRosca('${name}')" class="p-3 bg-slate-800/40 border border-slate-700 rounded-lg cursor-pointer hover:bg-sky-500/10 hover:border-sky-500 transition-all group flex justify-between items-center">
                     <div class="text-[10px] font-bold text-slate-300 group-hover:text-white leading-tight truncate pr-2">${name}</div>
                     ${ppmTag}
                 </div>`;
-        }).join('');
-    }
-
-    function addRosca() {
-        const id = formula.length + 1;
-        formula.push({ id, name: `Camada ${String.fromCharCode(64 + id)}`, share: 0, materials: [] });
-        activeRoscaIdx = formula.length - 1;
-        renderRoscas();
-        calculateAll();
-    }
-
-    function addMaterialToRosca(name) {
-        const p = getProps(name);
-        formula[activeRoscaIdx].materials.push({ name, pct: 0, ppm: p.ppm });
-        renderRoscas();
-        calculateAll();
-    }
-
-    function updateMaterialPct(rIdx, mIdx, val) { formula[rIdx].materials[mIdx].pct = parseFloat(val) || 0; calculateAll(); }
-    function updateMaterialPpm(rIdx, mIdx, val) { formula[rIdx].materials[mIdx].ppm = parseFloat(val) || 0; calculateAll(); }
-    function updateRoscaShare(idx, val) { formula[idx].share = parseFloat(val) || 0; calculateAll(); }
-    function removeMaterial(rIdx, mIdx) { formula[rIdx].materials.splice(mIdx, 1); renderRoscas(); calculateAll(); }
-    function setActiveRosca(idx) { activeRoscaIdx = idx; renderRoscas(); }
-
-    /**
-     * getProps (Best Match Logic V2):
-     * Busca a resina no banco de dados ignorando caracteres especiais e 
-     * priorizando a correspondência mais longa (mais específica).
-     */
-    function getProps(name) {
-        const cleanName = name.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        let bestMatch = "DEFAULT";
-        let maxLen = 0;
-
-        for (let key in RESIN_PROPS) {
-            const cleanKey = key.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            if (cleanName.includes(cleanKey) && cleanKey.length > maxLen) {
-                bestMatch = key;
-                maxLen = cleanKey.length;
-            }
+            }).join('');
         }
-        return RESIN_PROPS[bestMatch];
-    }
 
-    function renderRoscas() {
-        const container = document.getElementById('roscasContainer');
-        container.innerHTML = formula.map((rosca, rIdx) => `
+        function addRosca() {
+            const id = formula.length + 1;
+            formula.push({ id, name: `Camada ${String.fromCharCode(64 + id)}`, share: 0, materials: [] });
+            activeRoscaIdx = formula.length - 1;
+            renderRoscas();
+            calculateAll();
+        }
+
+        function addMaterialToRosca(name) {
+            const p = getProps(name);
+            formula[activeRoscaIdx].materials.push({ name, pct: 0, ppm: p.ppm, locked: false });
+            renderRoscas();
+            calculateAll();
+        }
+
+        function toggleLock(rIdx, mIdx) {
+            formula[rIdx].materials[mIdx].locked = !formula[rIdx].materials[mIdx].locked;
+            renderRoscas();
+        }
+
+        function updateMaterialPct(rIdx, mIdx, val) { formula[rIdx].materials[mIdx].pct = parseFloat(val) || 0; calculateAll(); }
+        function updateMaterialPpm(rIdx, mIdx, val) { formula[rIdx].materials[mIdx].ppm = parseFloat(val) || 0; calculateAll(); }
+        function updateRoscaShare(idx, val) { formula[idx].share = parseFloat(val) || 0; calculateAll(); }
+        function removeMaterial(rIdx, mIdx) { formula[rIdx].materials.splice(mIdx, 1); renderRoscas(); calculateAll(); }
+        function setActiveRosca(idx) { activeRoscaIdx = idx; renderRoscas(); }
+
+        /**
+         * getProps (Best Match Logic V2):
+         * Busca a resina no banco de dados ignorando caracteres especiais e 
+         * priorizando a correspondência mais longa (mais específica).
+         */
+        function getProps(name) {
+            const cleanName = name.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            let bestMatch = "DEFAULT";
+            let maxLen = 0;
+
+            for (let key in RESIN_PROPS) {
+                const cleanKey = key.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                if (cleanName.includes(cleanKey) && cleanKey.length > maxLen) {
+                    bestMatch = key;
+                    maxLen = cleanKey.length;
+                }
+            }
+            return RESIN_PROPS[bestMatch];
+        }
+
+        function renderRoscas() {
+            const container = document.getElementById('roscasContainer');
+            container.innerHTML = formula.map((rosca, rIdx) => `
             <div onclick="setActiveRosca(${rIdx})" class="card rounded-xl p-4 cursor-pointer transition-all ${activeRoscaIdx === rIdx ? 'active-rosca' : 'bg-slate-900/40 opacity-60 border-slate-800'}">
                 <div class="flex justify-between items-center mb-4">
                     <div class="flex items-center gap-3">
@@ -968,138 +1269,281 @@
                 </div>
                 <div class="space-y-2" onclick="event.stopPropagation()">
                     ${rosca.materials.map((m, mIdx) => `
-                        <div class="flex items-center gap-3 bg-slate-950/80 p-2 rounded-lg border border-white/5 group">
+                        <div class="flex items-center gap-3 bg-slate-950/80 p-2 rounded-lg border ${m.locked ? 'border-amber-500/50 bg-amber-500/5' : 'border-white/5'} group">
                             <div class="flex-1">
-                                <div class="text-[10px] font-bold text-slate-400 truncate">${m.name}</div>
+                                <div class="flex items-center gap-2">
+                                    <div class="text-[10px] font-bold ${m.locked ? 'text-amber-400' : 'text-slate-400'} truncate">${m.name}</div>
+                                    ${m.locked ? '<span class="text-[8px] bg-amber-500 text-black px-1 rounded font-black uppercase">REGRAS</span>' : ''}
+                                </div>
                                 <div class="flex items-center gap-1 mt-1">
                                     <span class="text-[8px] text-slate-600 font-bold uppercase">PPM:</span>
-                                    <input type="number" value="${m.ppm}" oninput="updateMaterialPpm(${rIdx}, ${mIdx}, this.value)" class="ppm-input">
+                                    <input type="number" value="${m.ppm}" ${m.locked ? 'disabled' : ''} oninput="updateMaterialPpm(${rIdx}, ${mIdx}, this.value)" class="ppm-input ${m.locked ? 'opacity-50' : ''}">
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <input type="number" value="${m.pct}" oninput="updateMaterialPct(${rIdx}, ${mIdx}, this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 w-14 text-xs mono text-emerald-400 outline-none text-center font-bold focus:border-emerald-500">
+                                <button onclick="toggleLock(${rIdx}, ${mIdx})" class="p-1.5 rounded-md transition-all ${m.locked ? 'bg-amber-500 text-black' : 'text-slate-600 hover:text-amber-500 hover:bg-amber-500/10'}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <input type="number" value="${m.pct}" ${m.locked ? 'disabled' : ''} oninput="updateMaterialPct(${rIdx}, ${mIdx}, this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 w-14 text-xs mono ${m.locked ? 'text-amber-400' : 'text-emerald-400'} outline-none text-center font-bold focus:border-emerald-500 ${m.locked ? 'opacity-80' : ''}">
                                 <span class="text-[10px] font-bold text-slate-600">%</span>
                                 <button onclick="removeMaterial(${rIdx}, ${mIdx})" class="text-slate-700 hover:text-red-500 transition-colors px-1 font-black text-lg">×</button>
                             </div>
                         </div>`).join('')}
                 </div>
             </div>`).join('');
-    }
+        }
 
-    /**
-     * =========================================================================
-     * 7. MOTOR DE CÁLCULO (FÍSICA + PPM + COF + ALONGAMENTO)
-     * =========================================================================
-     */
-    function calculateAll() {
-        const micra = parseFloat(document.getElementById('globalMicra').value) || 40;
-        
-        // Fatores de Escala (Restaurado V1)
-        const factorDart = micra / 40; 
-        const factorElong = 1 + ((micra - 40) * 0.0025);
+        /**
+         * =========================================================================
+         * 7. MOTOR DE CÁLCULO (FÍSICA + PPM + COF + ALONGAMENTO)
+         * =========================================================================
+         */
+        /**
+         * matchFromSimulator: 
+         * Converte a composição atual do simulador em vetores de busca e 
+         * localiza as fórmulas mais próximas no banco de dados.
+         */
+        function matchFromSimulator() {
+            // 1. Criar representação da fórmula atual (Simulada)
+            const simulada = {
+                id: "SIM-TEMP",
+                nome: "Composição em Simulação",
+                vetorBase: {},
+                vetorCor: {},
+                aditivosMap: new Map(),
+                itens: []
+            };
 
-        let totalPpm = 0, dardo = 0, dens = 0, logMI = 0, totalShare = 0;
-        let tMD = 0, tCD = 0, eMD = 0, eCD = 0;
-        
-        let summary = { Metalo: 0, HDPE: 0, LDPE: 0, REC: 0, ADIT: 0 };
+            formula.forEach(rosca => {
+                const rName = rosca.name;
+                rosca.materials.forEach(m => {
+                    const desc = m.name.toUpperCase();
+                    const tipo = desc.startsWith('PIG.') ? 'PIG' : (desc.startsWith('ADIT.') ? 'ADIT' : 'BASE');
 
-        formula.forEach(rosca => {
-            const rShare = rosca.share / 100; 
-            totalShare += rosca.share;
-            
-            let rD = 0, rDens = 0, rLogMI = 0, rMatTotal = 0;
-            let rTMD = 0, rTCD = 0, rEMD = 0, rECD = 0;
+                    // Emulamos o Cod_Material usando o nome pra busca
+                    const chaveVetor = `${rName}_${desc}`;
+                    const qtdF = m.pct * (rosca.share / 100);
 
-            rosca.materials.forEach(m => {
-                const p = getProps(m.name); 
-                const mPct = m.pct / 100; 
-                rMatTotal += m.pct;
+                    if (tipo === 'BASE') simulada.vetorBase[chaveVetor] = (simulada.vetorBase[chaveVetor] || 0) + qtdF;
+                    if (tipo === 'PIG') simulada.vetorCor[chaveVetor] = (simulada.vetorCor[chaveVetor] || 0) + qtdF;
 
-                // PPM Resultante no Filme: PPM do Material * % na Rosca * % da Rosca no Filme
-                totalPpm += (m.ppm || 0) * mPct * rShare;
+                    if (tipo !== 'BASE') {
+                        const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
+                        simulada.aditivosMap.set(`${rName}: ${nomeLimpo}`, m.pct);
+                    }
 
-                rD += p.dart * mPct; 
-                rDens += p.dens * mPct;
-                rTMD += p.tracMD * mPct; 
-                rTCD += p.tracCD * mPct;
-                rEMD += p.elongMD * mPct; 
-                rECD += p.elongCD * mPct;
-                
-                const safeMI = p.mi > 0 ? p.mi : 0.01;
-                rLogMI += Math.log(safeMI) * mPct;
-
-                const n = m.name.toUpperCase();
-                if (n.includes('PIG.') || n.includes('ADIT.') || n.includes('DESLIZANTE')) summary.ADIT += mPct * rShare;
-                else if (n.includes('FLEXUS') || n.includes('EXCEED') || n.includes('PROXESS') || n.includes('ENABLE')) summary.Metalo += mPct * rShare;
-                else if (n.includes('HE150') || n.includes('GF4950')) summary.HDPE += mPct * rShare;
-                else if (n.includes('REC')) summary.REC += mPct * rShare;
-                else summary.LDPE += mPct * rShare;
+                    simulada.itens.push({
+                        desc, tipo, rosca: rName,
+                        percRosca: rosca.share,
+                        qtd: m.pct,
+                        locked: m.locked
+                    });
+                });
             });
 
-            const norm = rMatTotal > 0 ? (100 / rMatTotal) : 0;
-            dardo += (rD * norm) * rShare; 
-            dens += (rDens * norm) * rShare;
-            tMD += (rTMD * norm) * rShare; 
-            tCD += (rTCD * norm) * rShare;
-            eMD += (rEMD * norm) * rShare; 
-            eCD += (rECD * norm) * rShare;
-            logMI += (rLogMI * norm) * rShare;
-        });
+            // 2. DNA de Cor Global (Simplificado para busca)
+            const dnaCorAlvo = {};
+            simulada.itens.filter(it => it.tipo === 'PIG').forEach(it => {
+                const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
+                dnaCorAlvo[codLimpo] = (dnaCorAlvo[codLimpo] || 0) + it.qtd;
+            });
 
-        // --- CÁLCULO DO COF (Fórmula V2) ---
-        let cofFinal;
-        if (totalPpm < 200) {
-            cofFinal = (0.7594 - (0.000610 * totalPpm) - (0.002508 * micra)) * 1.23;
-        } else {
-            cofFinal = 0.7594 - (0.000610 * totalPpm) - (0.002508 * micra);
+            // 3. Executar Comparação contra o DB
+            const lista = [];
+            const regras = simulada.itens.filter(it => it.locked);
+
+            Object.values(DB).forEach(cand => {
+                // Verificar Regras (Material Prioritário)
+                let satisfazRegras = true;
+                regras.forEach(regra => {
+                    // A regra diz que o material DEVE estar na rosca X com dose Y
+                    const possuiMaterial = cand.itens.some(cIt =>
+                        cIt.desc === regra.desc &&
+                        cIt.rosca === regra.rosca &&
+                        Math.abs(cIt.qtd - regra.qtd) < 0.5 // Tolerância de 0.5%
+                    );
+                    if (!possuiMaterial) satisfazRegras = false;
+                });
+
+                if (!satisfazRegras) return;
+
+                // Similaridade de Resina (Estrutural) - Adaptando vetores para comparação por nome se chave não bater
+                // No DB real as chaves são R_CodMaterial, aqui usamos R_Nome. 
+                // Para simplificar, comparamos o perfil de materiais ignorando Cod se necessário, 
+                // mas vamos manter o Cosine global por rosca se possível.
+
+                // Vamos usar uma versão mais robusta de similaridade estrutural para o simulador
+                const simBase = calcularCossenoFlexivel(simulada.itens.filter(i => i.tipo === 'BASE'), cand.itens.filter(i => i.tipo === 'BASE'));
+
+                // Similaridade de DNA de Cor Global
+                const dnaCorCand = {};
+                cand.itens.filter(it => it.tipo === 'PIG').forEach(it => {
+                    const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
+                    dnaCorCand[codLimpo] = (dnaCorCand[codLimpo] || 0) + it.qtd;
+                });
+                const simCor = calcularCosseno(dnaCorAlvo, dnaCorCand);
+
+                // Auditoria de diferenças
+                const extras = [], faltas = [], divergencias = [];
+                cand.aditivosMap.forEach((qtdC, nome) => {
+                    if (!simulada.aditivosMap.has(nome)) extras.push({ nome, qtd: qtdC });
+                    else {
+                        const qtdA = simulada.aditivosMap.get(nome);
+                        if (Math.abs(qtdC - qtdA) > 0.01) divergencias.push({ nome, diff: qtdC - qtdA, doseC: qtdC, doseA: qtdA });
+                    }
+                });
+                simulada.aditivosMap.forEach((_, nome) => {
+                    if (!cand.aditivosMap.has(nome)) faltas.push(nome);
+                });
+
+                lista.push({ ...cand, simBase, simCor, extras, faltas, divergencias });
+            });
+
+            if (lista.length === 0) {
+                return alert("Nenhuma fórmula encontrada que satisfaça as regras de materiais prioritários.");
+            }
+
+            // 4. Exibir Resultados
+            CURRENT_RESULTS = lista;
+            renderAlvoNoMatcher(simulada);
+            renderizarResultadosMatcher();
+            switchTab('matcher');
+
+            // Scroll para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        const hasData = totalShare > 0;
-        
-        // UI SUPERFÍCIE
-        document.getElementById('resPpm').textContent = hasData ? Math.round(totalPpm) : "0";
-        const cofDisplay = document.getElementById('resCof');
-        const cofStatus = document.getElementById('cof-status');
-        const barCof = document.getElementById('barCof');
-
-        if (!hasData) {
-            cofDisplay.textContent = "--";
-            cofStatus.textContent = "--";
-            barCof.style.width = "0%";
-        } else if (cofFinal <= 0.08) {
-            cofDisplay.textContent = "< 0.08";
-            cofStatus.textContent = "Ultra-Slip";
-            barCof.style.width = "100%";
-        } else {
-            const cofMin = Math.max(0, cofFinal - 0.04);
-            const cofMax = cofFinal + 0.04;
-            cofDisplay.textContent = `${cofMin.toFixed(2)} - ${cofMax.toFixed(2)}`;
-            cofStatus.textContent = cofFinal < 0.20 ? "Alto Deslizamento" : (cofFinal < 0.40 ? "Médio" : "Baixo");
-            barCof.style.width = `${Math.max(5, 100 - (cofFinal * 100))}%`;
+        /**
+         * calcularCossenoFlexivel:
+         * Compara dois conjuntos de itens de estrutura ignorando códigos e focando em nome+rosca.
+         */
+        function calcularCossenoFlexivel(itens1, itens2) {
+            const v1 = {}, v2 = {};
+            itens1.forEach(i => { const k = `${i.rosca}_${i.desc}`; v1[k] = (v1[k] || 0) + i.qtd * (i.percRosca / 100); });
+            itens2.forEach(i => { const k = `${i.rosca}_${i.desc}`; v2[k] = (v2[k] || 0) + i.qtd * (i.percRosca / 100); });
+            return calcularCosseno(v1, v2);
         }
 
-        // UI MECÂNICA (RESTAURADO ALONGAMENTO V1)
-        const finalDardo = dardo * factorDart;
-        const finalMI = Math.exp(logMI);
-        const finalEMD = eMD * factorElong;
-        const finalECD = eCD * factorElong;
-        const loadMD = tMD * (micra / 1000) * 25.4;
-        const loadCD = tCD * (micra / 1000) * 25.4;
+        function calculateAll() {
+            const micra = parseFloat(document.getElementById('globalMicra').value) || 40;
 
-        document.getElementById('resDensity').textContent = hasData ? dens.toFixed(3) : "--";
-        document.getElementById('resMFI').textContent = hasData ? finalMI.toFixed(2) : "--";
-        document.getElementById('resDart').textContent = hasData ? `${Math.round(finalDardo)}g` : "--";
-        document.getElementById('barDart').style.width = `${Math.min(100, (finalDardo / 1800) * 100)}%`;
+            // Fatores de Escala (Restaurado V1)
+            const factorDart = micra / 40;
+            const factorElong = 1 + ((micra - 40) * 0.0025);
 
-        document.getElementById('resTracMD').textContent = hasData ? `${tMD.toFixed(1)} MPa` : "--";
-        document.getElementById('resTracCD').textContent = hasData ? `${tCD.toFixed(1)} MPa` : "--";
-        document.getElementById('resElongMD').textContent = hasData ? `${Math.round(finalEMD)}%` : "--";
-        document.getElementById('resElongCD').textContent = hasData ? `${Math.round(finalECD)}%` : "--";
-        document.getElementById('resLoadMD').textContent = hasData ? `${loadMD.toFixed(1)} N` : "--";
-        document.getElementById('resLoadCD').textContent = hasData ? `${loadCD.toFixed(1)} N` : "--";
+            let totalPpm = 0, sumDardo = 0, sumDens = 0, sumMI = 0, totalShare = 0;
+            let sumTMD = 0, sumTCD = 0, sumEMD = 0, sumECD = 0;
 
-        // RESUMO DA BLENDA
-        document.getElementById('blendaSummary').innerHTML = `
+            let summary = { Metalo: 0, HDPE: 0, LDPE: 0, REC: 0, ADIT: 0 };
+
+            formula.forEach(rosca => {
+                const rShare = rosca.share / 100;
+                totalShare += rosca.share;
+
+                let rD = 0, rDens = 0, rMI = 0, rMatTotal = 0;
+                let rTMD = 0, rTCD = 0, rEMD = 0, rECD = 0;
+
+                rosca.materials.forEach(m => {
+                    const p = getProps(m.name);
+                    const mPct = m.pct / 100;
+                    rMatTotal += m.pct;
+
+                    // PPM Resultante no Filme: PPM do Material * % na Rosca * % da Rosca no Filme
+                    totalPpm += (m.ppm || 0) * mPct * rShare;
+
+                    rD += p.dart * mPct;
+                    rDens += p.dens * mPct;
+                    rTMD += p.tracMD * mPct;
+                    rTCD += p.tracCD * mPct;
+                    rEMD += p.elongMD * mPct;
+                    rECD += p.elongCD * mPct;
+                    rMI += p.mi * mPct;
+
+                    const n = m.name.toUpperCase();
+                    if (n.includes('PIG.') || n.includes('ADIT.') || n.includes('DESLIZANTE')) summary.ADIT += mPct * rShare;
+                    else if (n.includes('FLEXUS') || n.includes('EXCEED') || n.includes('PROXESS') || n.includes('ENABLE')) summary.Metalo += mPct * rShare;
+                    else if (n.includes('HE150') || n.includes('GF4950')) summary.HDPE += mPct * rShare;
+                    else if (n.includes('REC')) summary.REC += mPct * rShare;
+                    else summary.LDPE += mPct * rShare;
+                });
+
+                const norm = rMatTotal > 0 ? (100 / rMatTotal) : 0;
+                sumDardo += (rD * norm) * rShare;
+                sumDens += (rDens * norm) * rShare;
+                sumTMD += (rTMD * norm) * rShare;
+                sumTCD += (rTCD * norm) * rShare;
+                sumEMD += (rEMD * norm) * rShare;
+                sumECD += (rECD * norm) * rShare;
+                sumMI += (rMI * norm) * rShare;
+            });
+
+            // Normalização Global para Propriedades Intensivas
+            // Se o usuário definiu apenas uma fração do filme, as propriedades devem refletir a média do que foi definido.
+            const globalNorm = totalShare > 0 ? (100 / totalShare) : 1;
+
+            const dardo = sumDardo * globalNorm;
+            const dens = sumDens * globalNorm;
+            const tMD = sumTMD * globalNorm;
+            const tCD = sumTCD * globalNorm;
+            const eMD = sumEMD * globalNorm;
+            const eCD = sumECD * globalNorm;
+            const finalMI = sumMI * globalNorm;
+
+            // --- CÁLCULO DO COF (Fórmula V2) ---
+            let cofFinal;
+            if (totalPpm < 200) {
+                cofFinal = (0.7594 - (0.000610 * totalPpm) - (0.002508 * micra)) * 1.23;
+            } else {
+                cofFinal = 0.7594 - (0.000610 * totalPpm) - (0.002508 * micra);
+            }
+
+            const hasData = totalShare > 0;
+
+            // UI SUPERFÍCIE
+            document.getElementById('resPpm').textContent = hasData ? Math.round(totalPpm) : "0";
+            const cofDisplay = document.getElementById('resCof');
+            const cofStatus = document.getElementById('cof-status');
+            const barCof = document.getElementById('barCof');
+
+            if (!hasData) {
+                cofDisplay.textContent = "--";
+                cofStatus.textContent = "--";
+                barCof.style.width = "0%";
+            } else if (cofFinal <= 0.08) {
+                cofDisplay.textContent = "< 0.08";
+                cofStatus.textContent = "Ultra-Slip";
+                barCof.style.width = "100%";
+            } else {
+                const cofMin = Math.max(0, cofFinal - 0.04);
+                const cofMax = cofFinal + 0.04;
+                cofDisplay.textContent = `${cofMin.toFixed(2)} - ${cofMax.toFixed(2)}`;
+                cofStatus.textContent = cofFinal < 0.20 ? "Alto Deslizamento" : (cofFinal < 0.40 ? "Médio" : "Baixo");
+                barCof.style.width = `${Math.max(5, 100 - (cofFinal * 100))}%`;
+            }
+
+            // UI MECÂNICA (RESTAURADO ALONGAMENTO V1)
+            const finalDardo = dardo * factorDart;
+            const finalEMD = eMD * factorElong;
+            const finalECD = eCD * factorElong;
+            const loadMD = tMD * (micra / 1000) * 25.4;
+            const loadCD = tCD * (micra / 1000) * 25.4;
+
+            document.getElementById('resDensity').textContent = hasData ? dens.toFixed(3) : "--";
+            document.getElementById('resMFI').textContent = hasData ? finalMI.toFixed(2) : "--";
+            document.getElementById('resDart').textContent = hasData ? `${Math.round(finalDardo)}g` : "--";
+            document.getElementById('barDart').style.width = `${Math.min(100, (finalDardo / 1800) * 100)}%`;
+
+            document.getElementById('resTracMD').textContent = hasData ? `${tMD.toFixed(1)} MPa` : "--";
+            document.getElementById('resTracCD').textContent = hasData ? `${tCD.toFixed(1)} MPa` : "--";
+            document.getElementById('resElongMD').textContent = hasData ? `${Math.round(finalEMD)}%` : "--";
+            document.getElementById('resElongCD').textContent = hasData ? `${Math.round(finalECD)}%` : "--";
+            document.getElementById('resLoadMD').textContent = hasData ? `${loadMD.toFixed(1)} N` : "--";
+            document.getElementById('resLoadCD').textContent = hasData ? `${loadCD.toFixed(1)} N` : "--";
+
+            // RESUMO DA BLENDA
+            document.getElementById('blendaSummary').innerHTML = `
             <div class="flex justify-between border-b border-white/5 pb-1"><span>Metalocênicos:</span><span class="text-white font-bold">${(summary.Metalo * 100).toFixed(1)}%</span></div>
             <div class="flex justify-between border-b border-white/5 pb-1"><span>PEAD:</span><span class="text-white font-bold">${(summary.HDPE * 100).toFixed(1)}%</span></div>
             <div class="flex justify-between border-b border-white/5 pb-1"><span>PEBD/L:</span><span class="text-white font-bold">${(summary.LDPE * 100).toFixed(1)}%</span></div>
@@ -1107,12 +1551,99 @@
             <div class="flex justify-between border-b border-white/5 pb-1 col-span-2"><span class="text-amber-500">Aditivos/Pigmentos:</span><span class="text-amber-500 font-bold">${(summary.ADIT * 100).toFixed(1)}%</span></div>
         `;
 
-        const alerts = document.getElementById('alerts'); 
-        alerts.innerHTML = '';
-        if (Math.abs(totalShare - 100) > 0.1 && hasData) {
-            alerts.innerHTML += `<div class="p-3 bg-red-900/30 border border-red-500/30 rounded-lg text-[10px] text-red-400 font-black uppercase text-center animate-pulse">⚠️ Soma das Camadas = ${totalShare.toFixed(1)}%</div>`;
+            const alerts = document.getElementById('alerts');
+            alerts.innerHTML = '';
+            if (Math.abs(totalShare - 100) > 0.1 && hasData) {
+                alerts.innerHTML += `<div class="p-3 bg-red-900/30 border border-red-500/30 rounded-lg text-[10px] text-red-400 font-black uppercase text-center animate-pulse">⚠️ Soma das Camadas = ${totalShare.toFixed(1)}%</div>`;
+            }
+
+            // ATUALIZAR MATCHES INSTANTÂNEOS
+            if (hasData) updateInstantMatches();
         }
-    }
-</script>
+
+        /**
+         * updateInstantMatches:
+         * Realiza uma busca rápida e silenciosa para exibir os 5 melhores matches 
+         * diretamente na barra lateral do simulador sem trocar de aba.
+         */
+        function updateInstantMatches() {
+            const listContainer = document.getElementById('instant-matches-list');
+
+            // Reutilizamos a lógica de criação de perfil técnico do simulador
+            const perfil = {
+                itens: []
+            };
+            formula.forEach(rosca => {
+                rosca.materials.forEach(m => {
+                    perfil.itens.push({
+                        desc: m.name.toUpperCase(),
+                        tipo: m.name.toUpperCase().startsWith('PIG.') ? 'PIG' : (m.name.toUpperCase().startsWith('ADIT.') ? 'ADIT' : 'BASE'),
+                        rosca: rosca.name,
+                        percRosca: rosca.share,
+                        qtd: m.pct,
+                        locked: m.locked
+                    });
+                });
+            });
+
+            const dnaCorAlvo = {};
+            perfil.itens.filter(it => it.tipo === 'PIG').forEach(it => {
+                const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
+                dnaCorAlvo[codLimpo] = (dnaCorAlvo[codLimpo] || 0) + it.qtd;
+            });
+
+            const regras = perfil.itens.filter(it => it.locked);
+
+            const matches = Object.values(DB).map(cand => {
+                // Verificar Regras
+                let satisfazRegras = true;
+                regras.forEach(regra => {
+                    const possuiMaterial = cand.itens.some(cIt =>
+                        cIt.desc === regra.desc &&
+                        cIt.rosca === regra.rosca &&
+                        Math.abs(cIt.qtd - regra.qtd) < 0.5
+                    );
+                    if (!possuiMaterial) satisfazRegras = false;
+                });
+                if (!satisfazRegras) return null;
+
+                const simBase = calcularCossenoFlexivel(perfil.itens.filter(i => i.tipo === 'BASE'), cand.itens.filter(i => i.tipo === 'BASE'));
+                const dnaCorCand = {};
+                cand.itens.filter(it => it.tipo === 'PIG').forEach(it => {
+                    const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
+                    dnaCorCand[codLimpo] = (dnaCorCand[codLimpo] || 0) + it.qtd;
+                });
+                const simCor = calcularCosseno(dnaCorAlvo, dnaCorCand);
+
+                const finalScore = (simCor * PREFERENCES.dnaWeight) + (simBase * PREFERENCES.baseWeight);
+                return { id: cand.id, nome: cand.nome, score: finalScore };
+            }).filter(m => m !== null)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+
+            if (matches.length === 0) {
+                listContainer.innerHTML = `<div class="p-8 text-center opacity-30 text-[10px] uppercase font-black">Nenhum match com as regras atuais</div>`;
+                return;
+            }
+
+            listContainer.innerHTML = matches.map(m => `
+                <div onclick="executarAnaliseSimilaridade('${m.id}')" class="p-3 bg-slate-900/50 border border-white/5 rounded-xl hover:border-sky-500/50 hover:bg-sky-500/5 transition-all cursor-pointer group">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-[8px] font-bold text-slate-500 mono">ID ${m.id}</span>
+                        <span class="text-[10px] font-black text-sky-400">${(m.score * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="text-[10px] font-black text-white truncate group-hover:text-sky-400 transition-colors uppercase">${m.nome}</div>
+                    <div class="w-full bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+                        <div class="bg-sky-500 h-full" style="width: ${m.score * 100}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function toggleHelp() {
+            const panel = document.getElementById('help-panel');
+            panel.classList.toggle('hidden');
+        }
+    </script>
 </body>
+
 </html>
