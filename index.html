@@ -545,10 +545,6 @@
                     </div>
 
                     <div class="space-y-3">
-                        <button onclick="matchFromSimulator()"
-                            class="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-black text-[11px] uppercase tracking-widest transition-all shadow-lg shadow-sky-900/40 flex items-center justify-center gap-3">
-                            <span class="text-lg">🔎</span> BUSCAR RESINAS NO BANCO
-                        </button>
                         <p class="text-[8px] text-center text-slate-500 font-bold uppercase tracking-widest">Materiais
                             com 🔒 são tratados como obrigatórios</p>
                     </div>
@@ -1277,6 +1273,7 @@
         function toggleLock(rIdx, mIdx) {
             formula[rIdx].materials[mIdx].locked = !formula[rIdx].materials[mIdx].locked;
             renderRoscas();
+            calculateAll();
         }
 
         function updateMaterialPct(rIdx, mIdx, val) { formula[rIdx].materials[mIdx].pct = parseFloat(val) || 0; calculateAll(); }
@@ -1352,129 +1349,6 @@
          * 7. MOTOR DE CÁLCULO (FÍSICA + PPM + COF + ALONGAMENTO)
          * =========================================================================
          */
-        /**
-         * matchFromSimulator: 
-         * Converte a composição atual do simulador em vetores de busca e 
-         * localiza as fórmulas mais próximas no banco de dados.
-         */
-        function matchFromSimulator() {
-            // 1. Criar representação da fórmula atual (Simulada)
-            const simulada = {
-                id: "SIM-TEMP",
-                nome: "Composição em Simulação",
-                vetorBase: {},
-                vetorCor: {},
-                aditivosMap: new Map(),
-                itens: []
-            };
-
-            simulada.tipoProcesso = formula.filter(r => r.share > 0).length > 1 ? 'COEX' : 'MONO';
-            simulada.vetorBaseGlobal = {};
-            simulada.vetorCorGlobal = {};
-
-            formula.forEach(rosca => {
-                const rName = rosca.name;
-                rosca.materials.forEach(m => {
-                    const desc = m.name.toUpperCase();
-                    const tipo = desc.startsWith('PIG.') ? 'PIG' : (desc.startsWith('ADIT.') ? 'ADIT' : 'BASE');
-
-                    // Emulamos o Cod_Material usando o nome pra busca
-                    const chaveVetor = `${rName}_${desc}`;
-                    const qtdF = m.pct * (rosca.share / 100);
-
-                    if (tipo === 'BASE') {
-                        simulada.vetorBase[chaveVetor] = (simulada.vetorBase[chaveVetor] || 0) + qtdF;
-                        simulada.vetorBaseGlobal[desc] = (simulada.vetorBaseGlobal[desc] || 0) + qtdF;
-                    }
-                    if (tipo === 'PIG') {
-                        simulada.vetorCor[chaveVetor] = (simulada.vetorCor[chaveVetor] || 0) + qtdF;
-                        const descLimpa = desc.split('PIG. ')[1] || desc;
-                        simulada.vetorCorGlobal[descLimpa] = (simulada.vetorCorGlobal[descLimpa] || 0) + qtdF;
-                    }
-
-                    if (tipo !== 'BASE') {
-                        const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
-                        simulada.aditivosMap.set(`${rName}: ${nomeLimpo}`, m.pct);
-                    }
-
-                    simulada.itens.push({
-                        desc, tipo, rosca: rName,
-                        percRosca: rosca.share,
-                        qtd: m.pct,
-                        locked: m.locked
-                    });
-                });
-            });
-
-            // 2. DNA de Cor Global (Simplificado para busca)
-            const dnaCorAlvo = {};
-            simulada.itens.filter(it => it.tipo === 'PIG').forEach(it => {
-                const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
-                dnaCorAlvo[codLimpo] = (dnaCorAlvo[codLimpo] || 0) + it.qtd;
-            });
-
-            // 3. Executar Comparação contra o DB
-            const lista = [];
-            const regras = simulada.itens.filter(it => it.locked);
-
-            Object.values(DB).forEach(cand => {
-                // Verificar Regras (Material Prioritário)
-                let satisfazRegras = true;
-                regras.forEach(regra => {
-                    // A regra diz que o material DEVE estar na rosca X com dose Y
-                    const possuiMaterial = cand.itens.some(cIt =>
-                        cIt.desc === regra.desc &&
-                        cIt.rosca === regra.rosca &&
-                        Math.abs(cIt.qtd - regra.qtd) < 0.5 // Tolerância de 0.5%
-                    );
-                    if (!possuiMaterial) satisfazRegras = false;
-                });
-
-                if (!satisfazRegras) return;
-
-                // Similaridade de Resina (Estrutural) - Adaptando vetores para comparação por nome se chave não bater
-                // No DB real as chaves são R_CodMaterial, aqui usamos R_Nome. 
-                // Para simplificar, comparamos o perfil de materiais ignorando Cod se necessário, 
-                // mas vamos manter o Cosine global por rosca se possível.
-
-                // Vamos usar uma versão mais robusta de similaridade estrutural para o simulador
-                // Similaridade de Resina (Híbrida)
-                const simBase = (simulada.tipoProcesso === cand.tipoProcesso)
-                    ? calcularCossenoFlexivel(simulada.itens.filter(i => i.tipo === 'BASE'), cand.itens.filter(i => i.tipo === 'BASE'))
-                    : calcularCosseno(simulada.vetorBaseGlobal, cand.vetorBaseGlobal);
-
-                // Similaridade de DNA de Cor Global (Descrição-baseada)
-                const simCor = calcularCosseno(simulada.vetorCorGlobal, cand.vetorCorGlobal);
-
-                // Auditoria de diferenças
-                const extras = [], faltas = [], divergencias = [];
-                cand.aditivosMap.forEach((qtdC, nome) => {
-                    if (!simulada.aditivosMap.has(nome)) extras.push({ nome, qtd: qtdC });
-                    else {
-                        const qtdA = simulada.aditivosMap.get(nome);
-                        if (Math.abs(qtdC - qtdA) > 0.01) divergencias.push({ nome, diff: qtdC - qtdA, doseC: qtdC, doseA: qtdA });
-                    }
-                });
-                simulada.aditivosMap.forEach((_, nome) => {
-                    if (!cand.aditivosMap.has(nome)) faltas.push(nome);
-                });
-
-                lista.push({ ...cand, simBase, simCor, extras, faltas, divergencias });
-            });
-
-            if (lista.length === 0) {
-                return alert("Nenhuma fórmula encontrada que satisfaça as regras de materiais prioritários.");
-            }
-
-            // 4. Exibir Resultados
-            CURRENT_RESULTS = lista;
-            renderAlvoNoMatcher(simulada);
-            renderizarResultadosMatcher();
-            switchTab('matcher');
-
-            // Scroll para o topo
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
 
         /**
          * calcularCossenoFlexivel:
