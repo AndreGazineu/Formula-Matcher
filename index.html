@@ -253,7 +253,8 @@
                         F</div>
                     <div>
                         <h1 class="text-xl font-black text-sky-400 tracking-tighter uppercase leading-none">Formula
-                            <span class="text-white">Matcher</span></h1>
+                            <span class="text-white">Matcher</span>
+                        </h1>
                         <span class="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase">Sistema de Análise
                             Técnica de Polímeros</span>
                     </div>
@@ -472,19 +473,20 @@
             <!-- COLUNA 1: BIBLIOTECA DE MATERIAIS -->
             <aside class="col-span-1 lg:col-span-3 flex flex-col gap-3 lg:h-full lg:overflow-hidden">
                 <div class="card p-4 flex flex-col lg:h-full">
-                    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Resinas &
-                        Aditivos</h2>
-                    <div class="relative">
-                        <input type="text" id="searchMat" placeholder="Filtrar biblioteca..."
-                            oninput="renderMaterialList()"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white outline-none focus:border-sky-500 transition-all">
-                        <div class="absolute right-3 top-3 text-slate-600">🔍</div>
+                    <div class="mb-4">
+                        <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Resinas &
+                            Aditivos</h2>
+                        <div class="relative">
+                            <input type="text" id="searchMat" placeholder="Filtrar biblioteca..."
+                                oninput="renderMaterialList()"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white outline-none focus:border-sky-500 transition-all">
+                            <div class="absolute right-3 top-3 text-slate-600">🔍</div>
+                        </div>
                     </div>
-                </div>
-                <div id="materialList"
-                    class="flex-1 lg:overflow-y-auto space-y-2 pr-1 custom-scroll max-h-[300px] lg:max-h-none">
-                    <!-- Lista de materiais renderizada aqui -->
-                </div>
+                    <div id="materialList"
+                        class="flex-1 lg:overflow-y-auto space-y-2 pr-1 custom-scroll max-h-[300px] lg:max-h-none">
+                        <!-- Lista de materiais renderizada aqui -->
+                    </div>
                 </div>
             </aside>
 
