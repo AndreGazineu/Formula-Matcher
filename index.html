@@ -453,6 +453,21 @@
                         </label>
                         <span class="text-[9px] font-bold text-slate-400 uppercase">Ignorar Aditivos Funcionais</span>
                     </div>
+
+                    <div class="h-6 w-px bg-slate-800 ml-4 hidden lg:block"></div>
+
+                    <!-- SELETOR DE PROCESSO (MONO/COEX) -->
+                    <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
+                        <button onclick="setCurrentProcessFilter('TODAS')" id="proc-todas"
+                            class="px-3 py-1.5 rounded-md text-[9px] font-black uppercase transition-all bg-sky-600 text-white">Todas</button>
+                        <button onclick="setCurrentProcessFilter('MONO')" id="proc-mono"
+                            class="px-3 py-1.5 rounded-md text-[9px] font-black uppercase transition-all text-slate-500 hover:text-white">Só
+                            Mono</button>
+                        <button onclick="setCurrentProcessFilter('COEX')" id="proc-coex"
+                            class="px-3 py-1.5 rounded-md text-[9px] font-black uppercase transition-all text-slate-500 hover:text-white">Só
+                            Coex</button>
+                    </div>
+
                     <button onclick="resetPreferences()"
                         class="text-[9px] text-slate-600 font-bold uppercase ml-auto hover:text-sky-400">Restaurar
                         Padrão</button>
@@ -747,6 +762,7 @@
         let ALL_MATERIALS_SET = new Set();
 
         let CURRENT_RESULTS = [];
+        let CURRENT_PROCESS_FILTER = 'TODAS';
         let PREFERENCES = {
             dnaWeight: 0.7,
             baseWeight: 0.3,
@@ -814,8 +830,11 @@
                     DB[id] = {
                         id,
                         nome: row.Nome_Composicao,
+                        tipoProcesso: 'MONO', // Default, será atualizado se encontrar 'ROSCA'
                         vetorBase: {},
                         vetorCor: {},
+                        vetorBaseGlobal: {}, // Versão "achatada" (flattened)
+                        vetorCorGlobal: {},   // Versão "achatada" (flattened)
                         aditivosMap: new Map(),
                         itens: []
                     };
@@ -832,8 +851,19 @@
                 const qtdR = row.Qtd_Original_Na_Rosca || 0;
 
                 // Vetores para cálculo de similaridade (Cosseno)
-                if (tipo === 'BASE') DB[id].vetorBase[chaveVetor] = (DB[id].vetorBase[chaveVetor] || 0) + qtdF;
-                if (tipo === 'PIG') DB[id].vetorCor[chaveVetor] = (DB[id].vetorCor[chaveVetor] || 0) + qtdF;
+                if (tipo === 'BASE') {
+                    DB[id].vetorBase[chaveVetor] = (DB[id].vetorBase[chaveVetor] || 0) + qtdF;
+                    DB[id].vetorBaseGlobal[row.Cod_Material] = (DB[id].vetorBaseGlobal[row.Cod_Material] || 0) + qtdF;
+                }
+                if (tipo === 'PIG') {
+                    DB[id].vetorCor[chaveVetor] = (DB[id].vetorCor[chaveVetor] || 0) + qtdF;
+                    const descLimpa = desc.split('PIG. ')[1] || desc;
+                    DB[id].vetorCorGlobal[descLimpa] = (DB[id].vetorCorGlobal[descLimpa] || 0) + qtdF;
+                }
+
+                if (String(row.Grupo_Rosca || "").toUpperCase().includes("ROSCA")) {
+                    DB[id].tipoProcesso = 'COEX';
+                }
 
                 // Mapa de aditivos para auditoria de diferenças
                 if (tipo !== 'BASE') {
@@ -949,6 +979,23 @@
             renderizarResultadosMatcher();
         }
 
+        function setCurrentProcessFilter(type) {
+            CURRENT_PROCESS_FILTER = type;
+            const btnTodas = document.getElementById('proc-todas');
+            const btnMono = document.getElementById('proc-mono');
+            const btnCoex = document.getElementById('proc-coex');
+
+            [btnTodas, btnMono, btnCoex].forEach(btn => {
+                if (btn) btn.className = "px-3 py-1.5 rounded-md text-[9px] font-black uppercase transition-all text-slate-500 hover:text-white";
+            });
+
+            if (type === 'TODAS' && btnTodas) btnTodas.className = "px-3 py-1.5 rounded-md text-[9px] font-black uppercase transition-all bg-sky-600 text-white";
+            if (type === 'MONO' && btnMono) btnMono.className = "px-3 py-1.5 rounded-md text-[9px] font-black uppercase transition-all bg-sky-600 text-white";
+            if (type === 'COEX' && btnCoex) btnCoex.className = "px-3 py-1.5 rounded-md text-[9px] font-black uppercase transition-all bg-sky-600 text-white";
+
+            renderizarResultadosMatcher();
+        }
+
         function resetPreferences() {
             PREFERENCES.dnaWeight = 0.7;
             PREFERENCES.baseWeight = 0.3;
@@ -969,28 +1016,18 @@
 
             const lista = [];
 
-            // Criar vetores de "DNA de Cor" (Independente de Rosca)
-            const dnaCorAlvo = {};
-            // Precisamos iterar sobre itens para pegar o material do pigmento de forma global
-            alvo.itens.filter(it => it.tipo === 'PIG').forEach(it => {
-                const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
-                dnaCorAlvo[codLimpo] = (dnaCorAlvo[codLimpo] || 0) + it.qtd;
-            });
 
             Object.values(DB).forEach(cand => {
                 if (cand.id === id) return;
 
-                // Similaridade de Resina (Estrutural) - Baseada no vetorBase original que segue rosca
-                const simBase = calcularCosseno(alvo.vetorBase, cand.vetorBase);
+                // Similaridade de Resina (Híbrida)
+                // Se o processo for o mesmo, usa lógica estrutural (roscas). Se for diferente, usa global (achatada).
+                const simBase = (alvo.tipoProcesso === cand.tipoProcesso)
+                    ? calcularCosseno(alvo.vetorBase, cand.vetorBase)
+                    : calcularCosseno(alvo.vetorBaseGlobal, cand.vetorBaseGlobal);
 
-                // Similaridade de DNA de Cor Global
-                const dnaCorCand = {};
-                cand.itens.filter(it => it.tipo === 'PIG').forEach(it => {
-                    const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
-                    dnaCorCand[codLimpo] = (dnaCorCand[codLimpo] || 0) + it.qtd;
-                });
-
-                const simCor = calcularCosseno(dnaCorAlvo, dnaCorCand);
+                // Similaridade de DNA de Cor Global (Descrição-baseada)
+                const simCor = calcularCosseno(alvo.vetorCorGlobal, cand.vetorCorGlobal);
 
                 const extras = [], faltas = [], divergencias = [];
                 cand.aditivosMap.forEach((qtdC, nome) => {
@@ -1055,19 +1092,24 @@
             const targetId = document.getElementById('targetId').value.trim().replace(/^0+/, '');
             const alvo = DB[targetId];
 
-            let resultadosProcessados = CURRENT_RESULTS.map(c => {
-                const alvoTemCor = Object.keys(alvo.vetorCor).length > 0;
-                const candTemCor = Object.keys(c.vetorCor).length > 0;
+            let resultadosProcessados = CURRENT_RESULTS
+                .filter(c => {
+                    if (CURRENT_PROCESS_FILTER === 'TODAS') return true;
+                    return c.tipoProcesso === CURRENT_PROCESS_FILTER;
+                })
+                .map(c => {
+                    const alvoTemCor = Object.keys(alvo.vetorCor).length > 0;
+                    const candTemCor = Object.keys(c.vetorCor).length > 0;
 
-                let finalScore;
-                if (!alvoTemCor && !candTemCor) {
-                    finalScore = c.simBase;
-                } else {
-                    finalScore = (c.simCor * PREFERENCES.dnaWeight) + (c.simBase * PREFERENCES.baseWeight);
-                }
+                    let finalScore;
+                    if (!alvoTemCor && !candTemCor) {
+                        finalScore = c.simBase;
+                    } else {
+                        finalScore = (c.simCor * PREFERENCES.dnaWeight) + (c.simBase * PREFERENCES.baseWeight);
+                    }
 
-                return { ...c, finalScore };
-            });
+                    return { ...c, finalScore };
+                });
 
             resultadosProcessados
                 .sort((a, b) => b.finalScore - a.finalScore)
@@ -1326,6 +1368,10 @@
                 itens: []
             };
 
+            simulada.tipoProcesso = formula.filter(r => r.share > 0).length > 1 ? 'COEX' : 'MONO';
+            simulada.vetorBaseGlobal = {};
+            simulada.vetorCorGlobal = {};
+
             formula.forEach(rosca => {
                 const rName = rosca.name;
                 rosca.materials.forEach(m => {
@@ -1336,8 +1382,15 @@
                     const chaveVetor = `${rName}_${desc}`;
                     const qtdF = m.pct * (rosca.share / 100);
 
-                    if (tipo === 'BASE') simulada.vetorBase[chaveVetor] = (simulada.vetorBase[chaveVetor] || 0) + qtdF;
-                    if (tipo === 'PIG') simulada.vetorCor[chaveVetor] = (simulada.vetorCor[chaveVetor] || 0) + qtdF;
+                    if (tipo === 'BASE') {
+                        simulada.vetorBase[chaveVetor] = (simulada.vetorBase[chaveVetor] || 0) + qtdF;
+                        simulada.vetorBaseGlobal[desc] = (simulada.vetorBaseGlobal[desc] || 0) + qtdF;
+                    }
+                    if (tipo === 'PIG') {
+                        simulada.vetorCor[chaveVetor] = (simulada.vetorCor[chaveVetor] || 0) + qtdF;
+                        const descLimpa = desc.split('PIG. ')[1] || desc;
+                        simulada.vetorCorGlobal[descLimpa] = (simulada.vetorCorGlobal[descLimpa] || 0) + qtdF;
+                    }
 
                     if (tipo !== 'BASE') {
                         const nomeLimpo = desc.replace(/^(ADIT\.|PIG\.)\s*/, '');
@@ -1385,15 +1438,13 @@
                 // mas vamos manter o Cosine global por rosca se possível.
 
                 // Vamos usar uma versão mais robusta de similaridade estrutural para o simulador
-                const simBase = calcularCossenoFlexivel(simulada.itens.filter(i => i.tipo === 'BASE'), cand.itens.filter(i => i.tipo === 'BASE'));
+                // Similaridade de Resina (Híbrida)
+                const simBase = (simulada.tipoProcesso === cand.tipoProcesso)
+                    ? calcularCossenoFlexivel(simulada.itens.filter(i => i.tipo === 'BASE'), cand.itens.filter(i => i.tipo === 'BASE'))
+                    : calcularCosseno(simulada.vetorBaseGlobal, cand.vetorBaseGlobal);
 
-                // Similaridade de DNA de Cor Global
-                const dnaCorCand = {};
-                cand.itens.filter(it => it.tipo === 'PIG').forEach(it => {
-                    const codLimpo = it.desc.split('PIG. ')[1] || it.desc;
-                    dnaCorCand[codLimpo] = (dnaCorCand[codLimpo] || 0) + it.qtd;
-                });
-                const simCor = calcularCosseno(dnaCorAlvo, dnaCorCand);
+                // Similaridade de DNA de Cor Global (Descrição-baseada)
+                const simCor = calcularCosseno(simulada.vetorCorGlobal, cand.vetorCorGlobal);
 
                 // Auditoria de diferenças
                 const extras = [], faltas = [], divergencias = [];
